@@ -1,0 +1,27 @@
+{
+  "email": [
+    "wednesday.addams@example.com"
+  ],
+  "phone": [
+    "+1 212 555 0142"
+  ],
+  "url": [
+    "github.com/waddams"
+  ],
+  "programming_languages": [
+    "JS"
+  ],
+  "frameworks_libraries": [
+    "React.js",
+    "NodeJS"
+  ],
+  "databases": [
+    "Postgres"
+  ],
+  "tools_technologies": [
+    "Git"
+  ],
+  "professional_experience": [
+    "3 years of experience developing web applications"
+  ]
+}
