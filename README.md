@@ -85,10 +85,31 @@ pip install -r requirements.txt
 
 ## Usage
 
-*(To be completed once the CLI/UI entry point in `src/resumelens/ui/` is implemented.)*
+Install the package (editable) so the modules are importable, then run a stage.
 
 ```bash
-python -m resumelens.ui --input data/sample_resumes/<file>.txt --profile full_stack
+pip install -e .
+```
+
+**Stage 1 — Extraction** (implemented):
+
+```bash
+# Print the extracted information as JSON
+python -m resumelens.extraction --input data/sample_resumes/wednesday_addams.txt
+
+# Or save it to a file
+python -m resumelens.extraction --input data/sample_resumes/wednesday_addams.txt \
+    --output examples/output/wednesday_addams.json
+```
+
+Full end-to-end pipeline entry point (`python -m resumelens.ui …`) will be wired up as the remaining
+stages are implemented.
+
+## Tests
+
+```bash
+pip install -e ".[dev]"
+pytest
 ```
 
 ## Deliverables
