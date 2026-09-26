@@ -102,6 +102,23 @@ python -m resumelens.extraction --input data/sample_resumes/wednesday_addams.txt
     --output examples/output/wednesday_addams.json
 ```
 
+**Stage 2 — Normalization** (implemented):
+
+```bash
+# Normalize a résumé's qualifications and sort them by a profile.
+# --input accepts a résumé .txt or a Stage 1 extraction .json.
+python -m resumelens.normalization --input data/sample_resumes/wednesday_addams.txt --profile full_stack
+
+# Machine Learning profile, saving the result
+python -m resumelens.normalization --input data/sample_resumes/mary_jane_watson.txt \
+    --profile machine_learning --output examples/output/mary_jane_watson.normalized.json
+```
+
+The finite-state transducers map surface variants to a canonical form
+(`Git, NodeJS, JS, Postgres, React.js` → `JAVASCRIPT, REACT, NODE_JS, POSTGRESQL, GIT`) and the
+`--profile` order (currently `full_stack`, `machine_learning`) makes the output independent of the
+résumé's wording. Transducer diagrams live in `docs/design/diagrams/`.
+
 Full end-to-end pipeline entry point (`python -m resumelens.ui …`) will be wired up as the remaining
 stages are implemented.
 

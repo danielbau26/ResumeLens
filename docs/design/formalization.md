@@ -30,17 +30,82 @@ inside a `github.com/...` URL).
 
 ## 2. Finite-State Transducers (Stage 2 — Normalization)
 
-For each transducer, provide the complete 7-tuple: M = (Q, Σ, Γ, δ, ω, q0, F)
+Each transformation rule (`src/resumelens/normalization/transformations.py`) is compiled into a
+**character-level** finite-state transducer with pyformlang (`transducers.py`). Design:
 
-- Q:
-- Σ:
-- Γ:
-- δ:
-- ω:
-- q0:
-- F:
+- The input alphabet **Σ** is the set of characters of the accepted variants; matching is performed on
+  a **case-folded** token, so casing variants (`JS` / `js`) share paths and Σ stays lowercase.
+- The output alphabet **Γ** is the singleton canonical symbol (e.g. `{JAVASCRIPT}`).
+- Every variant is a path of fresh states from the start state `q0` that converges on a single
+  accepting state `qf`. The canonical symbol is emitted on the **first** transition of each path (the
+  output relation **ω**); all later transitions output ε.
+- Because different variants that share a first character create distinct transitions out of `q0`,
+  these are **nondeterministic** finite-state transducers (an NFST). `translate` explores all paths and
+  returns the canonical symbol for an accepted word, and nothing for a rejected one.
 
-Include a graphical representation of each transducer.
+The authoritative construction is in code; the graphical representations are exported as Graphviz
+files in [`docs/design/diagrams/`](diagrams/) (`*.dot`, one per transducer). Below are three
+representative 7-tuples.
+
+Notation: `q0` = start, `qf` = accepting, `sᵢ` = intermediate states. δ is written as
+`(state, input) → state`; ω as `(state, input) → output`.
+
+### 2.1 `M_JAVASCRIPT` — {JS, Javascript, JavaScript} → JAVASCRIPT
+
+Diagram: [`diagrams/JAVASCRIPT.dot`](diagrams/JAVASCRIPT.dot) · |Q| = 21, |δ| = 22.
+
+- **Q**: `{q0, qf}` ∪ intermediate states, one chain per variant (`js`, `javascript`, `javascript`
+  again for the mixed-case form, all folded to `javascript`).
+- **Σ**: `{j, s, a, v, c, r, i, p, t}` (characters of the folded variants).
+- **Γ**: `{JAVASCRIPT}`.
+- **δ**: three character-chains from `q0` to `qf`, e.g. for `js`: `(q0,j)→s1, (s1,s)→qf`; for
+  `javascript`: `(q0,j)→s2, (s2,a)→s3, …, (s10,t)→qf`.
+- **ω**: emits `JAVASCRIPT` on the first transition of each chain, ε afterwards, e.g.
+  `(q0,j)→JAVASCRIPT`, `(s1,s)→ε`.
+- **q0**: `q0`.
+- **F**: `{qf}`.
+
+### 2.2 `M_REACT` — {React, React.js, ReactJS} → REACT
+
+Diagram: [`diagrams/REACT.dot`](diagrams/REACT.dot) · |Q| = 19, |δ| = 20.
+
+- **Q**: `{q0, qf}` ∪ intermediate states for the three variant chains.
+- **Σ**: `{r, e, a, c, t, ., j, s}`.
+- **Γ**: `{REACT}`.
+- **δ**: chains `react`, `react.js`, `reactjs` from `q0` to `qf` (the `.` and the `js`/`JS` suffixes are
+  ordinary input characters after case folding).
+- **ω**: `REACT` on the first transition of each chain, ε afterwards.
+- **q0**: `q0`. **F**: `{qf}`.
+
+### 2.3 `M_SCIKIT_LEARN` — {Scikit-learn, scikit learn, sklearn} → SCIKIT_LEARN
+
+Diagram: [`diagrams/SCIKIT_LEARN.dot`](diagrams/SCIKIT_LEARN.dot) · |Q| = 30, |δ| = 31.
+
+- **Q**: `{q0, qf}` ∪ intermediate states for the three chains.
+- **Σ**: `{s, c, i, k, t, -, (space), l, e, a, r, n}` — note the hyphen and the space are distinct input
+  symbols, which is exactly the naming-variation this stage must absorb.
+- **Γ**: `{SCIKIT_LEARN}`.
+- **δ**: chains `scikit-learn`, `scikit␣learn`, `sklearn` from `q0` to `qf`.
+- **ω**: `SCIKIT_LEARN` on the first transition of each chain, ε afterwards.
+- **q0**: `q0`. **F**: `{qf}`.
+
+### 2.4 Combined transducer
+
+`combined_transducer()` unions all per-rule FSTs into a single machine (≈513 states, 493 transitions)
+whose Γ is the full set of canonical symbols — the "one transducer" view of the whole normalization
+stage.
+
+### 2.5 Sorting into profile canonical order
+
+After transduction the canonical symbols are de-duplicated and reordered into the order defined by the
+selected profile (`ordering.py`), so the Stage 3 input does not depend on the résumé's wording. Full
+Stack order: Frontend → Backend → Database → Version control. Worked example:
+
+```
+Git, NodeJS, JS, Postgres, React.js
+  --transduce-->  GIT, NODE_JS, JAVASCRIPT, POSTGRESQL, REACT
+  --sort(full_stack)-->  JAVASCRIPT, REACT, NODE_JS, POSTGRESQL, GIT
+```
 
 ## 3. Finite Automata (Stage 3 — Qualification Pattern Recognition)
 

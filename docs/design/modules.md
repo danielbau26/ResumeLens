@@ -22,8 +22,27 @@ Data structures:
 
 ## Stage 2 — Normalization (`src/resumelens/normalization/`)
 
+**Files:** `transformations.py` (rule catalogue), `transducers.py` (pyformlang FSTs), `ordering.py`
+(profile order + sort), `normalizer.py` (orchestrator), `__main__.py` (CLI).
+
+Data structures:
+- `TransductionRule(canonical, variants, category)` — a canonical form and the surface variants it accepts.
+- `NormalizationResult(canonical, mapping, unrecognized, profile)` — canonical output plus a
+  surface→canonical trace and the tokens no transducer recognized.
+
 | Function | Input | Output | Description |
 |---|---|---|---|
+| `build_transducer(rule)` | `TransductionRule` | `FST` | Character-level pyformlang FST accepting the (case-folded) variants and emitting the canonical form. |
+| `build_all()` | — | `dict[str, FST]` | One FST per canonical form, keyed by canonical symbol. |
+| `combined_transducer()` | — | `FST` | Union of all per-rule FSTs (the single-transducer view). |
+| `normalize_token(token)` | `str` | `str \| None` | Canonical form of a surface token, or `None` if unrecognized. |
+| `export_diagrams(dest, canonicals=None)` | dir, optional subset | written `Path`s | Graphviz `.dot` per transducer (`.png` too if `dot` is installed). |
+| `sort_qualifications(canonical, profile)` | canonical list, profile id | `list[str]` | Reorders into the profile's canonical order; unordered symbols appended last. |
+| `normalize(tokens, profile=None)` | surface tokens | `NormalizationResult` | Transduce → dedup → (sort). Keeps a mapping trace and unrecognized bucket. |
+| `normalize_extraction(result, profile=None)` | `ExtractionResult` | `NormalizationResult` | Convenience over `result.qualifications()`. |
+| `save_result(result, path)` | result, path | written `Path` | Persists the result as JSON. |
+
+**CLI:** `python -m resumelens.normalization --input <resume.txt\|extraction.json> [--profile full_stack\|machine_learning] [--output <json>]`.
 
 ## Stage 3 — Recognition (`src/resumelens/recognition/`)
 
