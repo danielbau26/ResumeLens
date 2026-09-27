@@ -42,7 +42,7 @@ Data structures:
 | `normalize_extraction(result, profile=None)` | `ExtractionResult` | `NormalizationResult` | Convenience over `result.qualifications()`. |
 | `save_result(result, path)` | result, path | written `Path` | Persists the result as JSON. |
 
-**CLI:** `python -m resumelens.normalization --input <resume.txt\|extraction.json> [--profile full_stack\|machine_learning] [--output <json>]`.
+**CLI:** `python -m resumelens.normalization --input <resume.txt\|extraction.json> [--profile full_stack\|machine_learning\|ai_engineer\|cloud_engineer] [--output <json>]`.
 
 ## Stage 3 — Recognition (`src/resumelens/recognition/`)
 

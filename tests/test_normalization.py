@@ -43,6 +43,10 @@ from resumelens.normalization.transformations import RULES, rule_for_canonical
         ("Git", "GIT"),
         ("SQL", "SQL"),
         ("K8s", "KUBERNETES"),
+        ("PySpark", "SPARK"),
+        ("Apache Spark", "SPARK"),
+        ("Hugging Face", "HUGGING_FACE"),
+        ("Helm", "HELM"),
     ],
 )
 def test_transducer_maps_variant_to_canonical(surface, canonical):
@@ -110,6 +114,38 @@ def test_ml_sample_end_to_end():
     result = normalize_extraction(extraction, profile="machine_learning")
     assert result.canonical == [
         "PYTHON", "PANDAS", "NUMPY", "SCIKIT_LEARN", "TENSORFLOW", "SQL", "GIT",
+    ]
+
+
+def test_all_four_profiles_are_available():
+    from resumelens.normalization import available_profiles
+
+    assert available_profiles() == [
+        "full_stack", "machine_learning", "ai_engineer", "cloud_engineer",
+    ]
+
+
+def test_ai_engineer_profile_ordering():
+    """AI Engineer sorts language -> data -> ML/DL -> big data/GenAI -> db -> tools."""
+    result = normalize(
+        ["Git", "Python", "PyTorch", "Pandas", "Hugging Face", "PySpark", "Postgres", "Docker", "AWS"],
+        profile="ai_engineer",
+    )
+    assert result.canonical == [
+        "PYTHON", "PANDAS", "PYTORCH", "SPARK", "HUGGING_FACE",
+        "POSTGRESQL", "DOCKER", "AWS", "GIT",
+    ]
+
+
+def test_cloud_engineer_profile_ordering():
+    """Cloud Engineer sorts platforms -> containers -> IaC -> CI/CD -> OS -> db -> vcs."""
+    result = normalize(
+        ["Git", "Terraform", "Docker", "AWS", "Kubernetes", "Helm", "Jenkins", "Linux", "Azure"],
+        profile="cloud_engineer",
+    )
+    assert result.canonical == [
+        "AWS", "AZURE", "DOCKER", "KUBERNETES", "HELM",
+        "TERRAFORM", "JENKINS", "LINUX", "GIT",
     ]
 
 

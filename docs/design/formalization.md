@@ -98,14 +98,28 @@ stage.
 ### 2.5 Sorting into profile canonical order
 
 After transduction the canonical symbols are de-duplicated and reordered into the order defined by the
-selected profile (`ordering.py`), so the Stage 3 input does not depend on the résumé's wording. Full
-Stack order: Frontend → Backend → Database → Version control. Worked example:
+selected profile (`ordering.py`), so the Stage 3 input does not depend on the résumé's wording. All
+four supported profiles define an order (kept in Stage 2 so the Stage 3 recognition module only builds
+automata and consumes the already-sorted sequence):
+
+| Profile (`--profile`) | Canonical order (grouped) |
+|---|---|
+| `full_stack` | Frontend → Backend → Database → Version control |
+| `machine_learning` | Language → Data libs → ML libs → Database → Tools |
+| `ai_engineer` | Language → Data → ML/DL libs → Big data & GenAI (SPARK, HUGGING_FACE) → Database → Deployment |
+| `cloud_engineer` | Cloud platforms → Containers/orchestration (incl. HELM) → IaC → CI/CD → OS & scripting → Database → Version control |
+
+Worked example (Full Stack):
 
 ```
 Git, NodeJS, JS, Postgres, React.js
   --transduce-->  GIT, NODE_JS, JAVASCRIPT, POSTGRESQL, REACT
   --sort(full_stack)-->  JAVASCRIPT, REACT, NODE_JS, POSTGRESQL, GIT
 ```
+
+`ai_engineer` and `cloud_engineer` are the two team-defined profiles; their qualification sets are our
+design. Three canonical forms were added to the catalogue for them — `SPARK`, `HUGGING_FACE` (AI) and
+`HELM` (Cloud) — end to end (extraction regex + transducers), so the pipeline stays consistent.
 
 ## 3. Finite Automata (Stage 3 — Qualification Pattern Recognition)
 

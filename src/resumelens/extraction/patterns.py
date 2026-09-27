@@ -145,6 +145,8 @@ FRAMEWORKS = PatternSpec(
             r"TensorFlow", r"Tensor\s?Flow",
             r"PyTorch", r"Py\s?Torch",
             r"Keras",
+            r"PySpark", r"Apache\s?Spark", r"Spark",
+            r"Hugging\s?Face", r"HuggingFace",
             r"\.NET",
         )
         + _RB,
@@ -192,7 +194,7 @@ TOOLS = PatternSpec(
             r"Git(?:Hub|Lab)?",
             r"Docker", r"Kubernetes", r"K8s",
             r"Jenkins",
-            r"Terraform", r"Ansible",
+            r"Terraform", r"Ansible", r"Helm",
             r"AWS", r"Amazon\s?Web\s?Services",
             r"Azure",
             r"GCP", r"Google\s?Cloud",

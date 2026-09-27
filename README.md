@@ -26,13 +26,15 @@ qualifications satisfy formally defined qualification patterns.
 
 ## Supported Professional Profiles
 
-1. **Full Stack Developer** *(predefined)*
-2. **Machine Learning Engineer** *(predefined)*
-3. *(AI Engineer — defined by the team)*
-4. *(Cloud Engineer — defined by the team)*
+1. **Full Stack Developer** *(predefined)* — `full_stack`
+2. **Machine Learning Engineer** *(predefined)* — `machine_learning`
+3. **AI Engineer** *(team-defined)* — `ai_engineer`
+4. **Cloud Engineer** *(team-defined)* — `cloud_engineer`
 
 All four profiles are processed through the same general pipeline rather than independent
-implementations.
+implementations. Each profile's canonical qualification order (used by Stage 2 to sort the normalized
+output) is defined in `src/resumelens/normalization/ordering.py`; the Stage 3 recognition module then
+builds one automaton per profile over the already-sorted canonical sequence.
 
 ## Pipeline / Formal Models
 

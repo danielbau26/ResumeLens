@@ -23,7 +23,7 @@ Automated in `tests/test_extraction.py` (run with `pytest`). All 12 cases pass.
 
 ## Stage 2 — Normalization
 
-Automated in `tests/test_normalization.py` (run with `pytest`). All cases pass (full suite: 45).
+Automated in `tests/test_normalization.py` (run with `pytest`). All cases pass (full suite: 52).
 
 | # | Scenario | Input | Expected Output |
 |---|---|---|---|
@@ -41,6 +41,9 @@ Automated in `tests/test_normalization.py` (run with `pytest`). All cases pass (
 | 12 | Combined transducer | chars of `js` | `[[JAVASCRIPT]]` |
 | 13 | FST 7-tuple sanity | `M_SCIKIT_LEARN` | start `{q0}`, final `{qf}`, Γ `{SCIKIT_LEARN}`, \|Q\| > 2 |
 | 14 | JSON save round-trip | `normalize([JS, Git], full_stack)` | reloaded `canonical`/`profile`/`mapping` match |
+| 15 | All four profiles available | `available_profiles()` | `[full_stack, machine_learning, ai_engineer, cloud_engineer]` |
+| 16 | AI Engineer ordering | AI résumé tokens + `ai_engineer` | `[PYTHON, PANDAS, PYTORCH, SPARK, HUGGING_FACE, POSTGRESQL, DOCKER, AWS, GIT]` |
+| 17 | Cloud Engineer ordering | Cloud résumé tokens + `cloud_engineer` | `[AWS, AZURE, DOCKER, KUBERNETES, HELM, TERRAFORM, JENKINS, LINUX, GIT]` |
 
 ## Stage 3 — Recognition
 

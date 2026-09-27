@@ -71,6 +71,8 @@ _FRAMEWORKS: list[TransductionRule] = [
     TransductionRule("TENSORFLOW", ["TensorFlow", "Tensor Flow"], "frameworks_libraries"),
     TransductionRule("PYTORCH", ["PyTorch", "Py Torch"], "frameworks_libraries"),
     TransductionRule("KERAS", ["Keras"], "frameworks_libraries"),
+    TransductionRule("SPARK", ["Apache Spark", "PySpark", "Spark"], "frameworks_libraries"),
+    TransductionRule("HUGGING_FACE", ["Hugging Face", "HuggingFace"], "frameworks_libraries"),
 ]
 
 # --- Databases ---------------------------------------------------------------
@@ -95,6 +97,7 @@ _TOOLS: list[TransductionRule] = [
     TransductionRule("JENKINS", ["Jenkins"], "tools_technologies"),
     TransductionRule("TERRAFORM", ["Terraform"], "tools_technologies"),
     TransductionRule("ANSIBLE", ["Ansible"], "tools_technologies"),
+    TransductionRule("HELM", ["Helm"], "tools_technologies"),
     TransductionRule("AWS", ["AWS", "Amazon Web Services"], "tools_technologies"),
     TransductionRule("AZURE", ["Azure"], "tools_technologies"),
     TransductionRule("GCP", ["GCP", "Google Cloud"], "tools_technologies"),
