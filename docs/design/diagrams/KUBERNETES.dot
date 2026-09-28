@@ -1,0 +1,30 @@
+digraph {
+KUBERNETES_5 [is_start=False, is_final=False, peripheries=1, label="KUBERNETES_5"];
+KUBERNETES_10 [is_start=False, is_final=False, peripheries=1, label="KUBERNETES_10"];
+q0 [is_start=True, is_final=False, peripheries=1, label=q0];
+starting_q0 [label="", shape=None, height=0.0, width=0.0];
+KUBERNETES_8 [is_start=False, is_final=False, peripheries=1, label="KUBERNETES_8"];
+KUBERNETES_3 [is_start=False, is_final=False, peripheries=1, label="KUBERNETES_3"];
+qf [is_start=False, is_final=True, peripheries=2, label=qf];
+KUBERNETES_1 [is_start=False, is_final=False, peripheries=1, label="KUBERNETES_1"];
+KUBERNETES_0 [is_start=False, is_final=False, peripheries=1, label="KUBERNETES_0"];
+KUBERNETES_7 [is_start=False, is_final=False, peripheries=1, label="KUBERNETES_7"];
+KUBERNETES_2 [is_start=False, is_final=False, peripheries=1, label="KUBERNETES_2"];
+KUBERNETES_11 [is_start=False, is_final=False, peripheries=1, label="KUBERNETES_11"];
+KUBERNETES_4 [is_start=False, is_final=False, peripheries=1, label="KUBERNETES_4"];
+KUBERNETES_6 [is_start=False, is_final=False, peripheries=1, label="KUBERNETES_6"];
+KUBERNETES_5 -> KUBERNETES_6 [key=0, label="\"e\" -> []"];
+KUBERNETES_10 -> KUBERNETES_11 [key=0, label="\"8\" -> []"];
+q0 -> KUBERNETES_0 [key=0, label="\"k\" -> [\"KUBERNETES\"]"];
+q0 -> KUBERNETES_10 [key=0, label="\"k\" -> [\"KUBERNETES\"]"];
+starting_q0 -> q0 [key=0];
+KUBERNETES_8 -> qf [key=0, label="\"s\" -> []"];
+KUBERNETES_3 -> KUBERNETES_4 [key=0, label="\"r\" -> []"];
+KUBERNETES_1 -> KUBERNETES_2 [key=0, label="\"b\" -> []"];
+KUBERNETES_0 -> KUBERNETES_1 [key=0, label="\"u\" -> []"];
+KUBERNETES_7 -> KUBERNETES_8 [key=0, label="\"e\" -> []"];
+KUBERNETES_2 -> KUBERNETES_3 [key=0, label="\"e\" -> []"];
+KUBERNETES_11 -> qf [key=0, label="\"s\" -> []"];
+KUBERNETES_4 -> KUBERNETES_5 [key=0, label="\"n\" -> []"];
+KUBERNETES_6 -> KUBERNETES_7 [key=0, label="\"t\" -> []"];
+}

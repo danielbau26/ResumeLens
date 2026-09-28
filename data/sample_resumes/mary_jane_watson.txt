@@ -1,0 +1,8 @@
+Mary Jane Watson
+mary.jane@example.com | linkedin.com/in/mjwatson
+
+2 years of experience developing predictive models and data-processing pipelines.
+BSc in Computer Science.
+
+Technical Skills:
+Python, Pandas, NumPy, Scikit-learn, TensorFlow, SQL, Git.

@@ -26,13 +26,15 @@ qualifications satisfy formally defined qualification patterns.
 
 ## Supported Professional Profiles
 
-1. **Full Stack Developer** *(predefined)*
-2. **Machine Learning Engineer** *(predefined)*
-3. *(AI Engineer — defined by the team)*
-4. *(Cloud Engineer — defined by the team)*
+1. **Full Stack Developer** *(predefined)* — `full_stack`
+2. **Machine Learning Engineer** *(predefined)* — `machine_learning`
+3. **AI Engineer** *(team-defined)* — `ai_engineer`
+4. **Cloud Engineer** *(team-defined)* — `cloud_engineer`
 
 All four profiles are processed through the same general pipeline rather than independent
-implementations.
+implementations. Each profile's canonical qualification order (used by Stage 2 to sort the normalized
+output) is defined in `src/resumelens/normalization/ordering.py`; the Stage 3 recognition module then
+builds one automaton per profile over the already-sorted canonical sequence.
 
 ## Pipeline / Formal Models
 
@@ -85,10 +87,48 @@ pip install -r requirements.txt
 
 ## Usage
 
-*(To be completed once the CLI/UI entry point in `src/resumelens/ui/` is implemented.)*
+Install the package (editable) so the modules are importable, then run a stage.
 
 ```bash
-python -m resumelens.ui --input data/sample_resumes/<file>.txt --profile full_stack
+pip install -e .
+```
+
+**Stage 1 — Extraction** (implemented):
+
+```bash
+# Print the extracted information as JSON
+python -m resumelens.extraction --input data/sample_resumes/wednesday_addams.txt
+
+# Or save it to a file
+python -m resumelens.extraction --input data/sample_resumes/wednesday_addams.txt \
+    --output examples/output/wednesday_addams.json
+```
+
+**Stage 2 — Normalization** (implemented):
+
+```bash
+# Normalize a résumé's qualifications and sort them by a profile.
+# --input accepts a résumé .txt or a Stage 1 extraction .json.
+python -m resumelens.normalization --input data/sample_resumes/wednesday_addams.txt --profile full_stack
+
+# Machine Learning profile, saving the result
+python -m resumelens.normalization --input data/sample_resumes/mary_jane_watson.txt \
+    --profile machine_learning --output examples/output/mary_jane_watson.normalized.json
+```
+
+The finite-state transducers map surface variants to a canonical form
+(`Git, NodeJS, JS, Postgres, React.js` → `JAVASCRIPT, REACT, NODE_JS, POSTGRESQL, GIT`) and the
+`--profile` order (currently `full_stack`, `machine_learning`) makes the output independent of the
+résumé's wording. Transducer diagrams live in `docs/design/diagrams/`.
+
+Full end-to-end pipeline entry point (`python -m resumelens.ui …`) will be wired up as the remaining
+stages are implemented.
+
+## Tests
+
+```bash
+pip install -e ".[dev]"
+pytest
 ```
 
 ## Deliverables

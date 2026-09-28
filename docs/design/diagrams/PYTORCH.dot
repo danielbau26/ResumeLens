@@ -1,0 +1,34 @@
+digraph {
+PYTORCH_11 [is_start=False, is_final=False, peripheries=1, label="PYTORCH_11"];
+PYTORCH_4 [is_start=False, is_final=False, peripheries=1, label="PYTORCH_4"];
+PYTORCH_12 [is_start=False, is_final=False, peripheries=1, label="PYTORCH_12"];
+q0 [is_start=True, is_final=False, peripheries=1, label=q0];
+starting_q0 [label="", shape=None, height=0.0, width=0.0];
+PYTORCH_3 [is_start=False, is_final=False, peripheries=1, label="PYTORCH_3"];
+PYTORCH_8 [is_start=False, is_final=False, peripheries=1, label="PYTORCH_8"];
+qf [is_start=False, is_final=True, peripheries=2, label=qf];
+PYTORCH_9 [is_start=False, is_final=False, peripheries=1, label="PYTORCH_9"];
+PYTORCH_2 [is_start=False, is_final=False, peripheries=1, label="PYTORCH_2"];
+PYTORCH_1 [is_start=False, is_final=False, peripheries=1, label="PYTORCH_1"];
+PYTORCH_7 [is_start=False, is_final=False, peripheries=1, label="PYTORCH_7"];
+PYTORCH_0 [is_start=False, is_final=False, peripheries=1, label="PYTORCH_0"];
+PYTORCH_5 [is_start=False, is_final=False, peripheries=1, label="PYTORCH_5"];
+PYTORCH_10 [is_start=False, is_final=False, peripheries=1, label="PYTORCH_10"];
+PYTORCH_13 [is_start=False, is_final=False, peripheries=1, label="PYTORCH_13"];
+PYTORCH_11 -> PYTORCH_12 [key=0, label="\"r\" -> []"];
+PYTORCH_4 -> PYTORCH_5 [key=0, label="\"c\" -> []"];
+PYTORCH_12 -> PYTORCH_13 [key=0, label="\"c\" -> []"];
+q0 -> PYTORCH_0 [key=0, label="\"p\" -> [\"PYTORCH\"]"];
+q0 -> PYTORCH_7 [key=0, label="\"p\" -> [\"PYTORCH\"]"];
+starting_q0 -> q0 [key=0];
+PYTORCH_3 -> PYTORCH_4 [key=0, label="\"r\" -> []"];
+PYTORCH_8 -> PYTORCH_9 [key=0, label="\" \" -> []"];
+PYTORCH_9 -> PYTORCH_10 [key=0, label="\"t\" -> []"];
+PYTORCH_2 -> PYTORCH_3 [key=0, label="\"o\" -> []"];
+PYTORCH_1 -> PYTORCH_2 [key=0, label="\"t\" -> []"];
+PYTORCH_7 -> PYTORCH_8 [key=0, label="\"y\" -> []"];
+PYTORCH_0 -> PYTORCH_1 [key=0, label="\"y\" -> []"];
+PYTORCH_5 -> qf [key=0, label="\"h\" -> []"];
+PYTORCH_10 -> PYTORCH_11 [key=0, label="\"o\" -> []"];
+PYTORCH_13 -> qf [key=0, label="\"h\" -> []"];
+}
