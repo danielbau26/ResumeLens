@@ -16,18 +16,16 @@ import json
 import sys
 from pathlib import Path
 
-from ..extraction import extract_file
-from ..extraction.extractor import ExtractionResult
+from ..extraction import extract_from_file
 from .normalizer import normalize_extraction, save_result
 from .ordering import available_profiles
 
 
-def _load_extraction(path: Path) -> ExtractionResult:
-    """Load an ExtractionResult from a résumé .txt or a Stage 1 .json file."""
+def _load_extraction(path: Path) -> dict:
+    """Load a Stage 1 extraction dict from a résumé .txt or a Stage 1 .json file."""
     if path.suffix.lower() == ".json":
-        data = json.loads(path.read_text(encoding="utf-8"))
-        return ExtractionResult(matches={k: list(v) for k, v in data.items()})
-    return extract_file(path)
+        return json.loads(path.read_text(encoding="utf-8"))
+    return extract_from_file(path)
 
 
 def main(argv: list[str] | None = None) -> int:

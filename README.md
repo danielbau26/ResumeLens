@@ -96,12 +96,8 @@ pip install -e .
 **Stage 1 — Extraction** (implemented):
 
 ```bash
-# Print the extracted information as JSON
-python -m resumelens.extraction --input data/sample_resumes/wednesday_addams.txt
-
-# Or save it to a file
-python -m resumelens.extraction --input data/sample_resumes/wednesday_addams.txt \
-    --output examples/output/wednesday_addams.json
+# Print the extracted information (JSON dict) and the skills list passed to Stage 2
+python -m resumelens.extraction data/sample_resumes/wednesday_addams.txt
 ```
 
 **Stage 2 — Normalization** (implemented):

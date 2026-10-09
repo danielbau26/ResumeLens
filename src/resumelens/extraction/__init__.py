@@ -1,19 +1,6 @@
-"""Stage 1 — Résumé information extraction using regular expressions."""
-
-from .extractor import (
-    ExtractionResult,
-    extract,
-    extract_file,
-    save_result,
-)
-from .patterns import PATTERNS, QUALIFICATION_CATEGORIES, PatternSpec
-
-__all__ = [
-    "ExtractionResult",
-    "extract",
-    "extract_file",
-    "save_result",
-    "PATTERNS",
-    "QUALIFICATION_CATEGORIES",
-    "PatternSpec",
-]
+# Makes "extraction" a Python package and allows a shorter import:
+#   from resumelens.extraction import extract_info
+# instead of
+#   from resumelens.extraction.extractor import extract_info
+from .patterns import PATTERNS, QUALIFICATION_CATEGORIES
+from .extractor import extract_info, extract_from_file, get_skills, save_result

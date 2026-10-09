@@ -13,7 +13,7 @@ import json
 from dataclasses import dataclass, field
 from pathlib import Path
 
-from ..extraction import ExtractionResult
+from ..extraction import get_skills
 from .ordering import sort_qualifications
 from .transducers import normalize_token
 
@@ -92,9 +92,9 @@ def normalize(surface_tokens: list[str], profile: str | None = None) -> Normaliz
     )
 
 
-def normalize_extraction(result: ExtractionResult, profile: str | None = None) -> NormalizationResult:
-    """Normalize the qualifications flattened from an :class:`ExtractionResult`."""
-    return normalize(result.qualifications(), profile=profile)
+def normalize_extraction(data: dict, profile: str | None = None) -> NormalizationResult:
+    """Normalize the qualifications flattened from a Stage 1 extraction dict."""
+    return normalize(get_skills(data), profile=profile)
 
 
 def save_result(result: NormalizationResult, path: str | Path) -> Path:

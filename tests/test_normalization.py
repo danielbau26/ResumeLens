@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from resumelens.extraction import extract_file
+from resumelens.extraction import extract_from_file
 from resumelens.normalization import (
     build_transducer,
     combined_transducer,
@@ -110,7 +110,7 @@ def test_sort_requires_known_profile():
 def test_ml_sample_end_to_end():
     """Mary Jane Watson résumé normalizes to the ML canonical sequence."""
     data_dir = Path(__file__).resolve().parents[1] / "data" / "sample_resumes"
-    extraction = extract_file(data_dir / "mary_jane_watson.txt")
+    extraction = extract_from_file(data_dir / "mary_jane_watson.txt")
     result = normalize_extraction(extraction, profile="machine_learning")
     assert result.canonical == [
         "PYTHON", "PANDAS", "NUMPY", "SCIKIT_LEARN", "TENSORFLOW", "SQL", "GIT",
