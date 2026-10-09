@@ -1,14 +1,7 @@
-# Makes "normalization" a Python package and allows a shorter import:
+# Hace que "normalization" sea un paquete y permite importar mas corto:
 #   from resumelens.normalization import normalize
-# instead of
-#   from resumelens.normalization.normalizer import normalize
-from .transformations import TRANSFORMATIONS, canonical_forms
-from .transducers import (
-    build_transducer,
-    build_all,
-    combined_transducer,
-    normalize_token,
-    export_diagrams,
-)
-from .ordering import PROFILE_ORDER, available_profiles, sort_qualifications
-from .normalizer import normalize, normalize_extraction, save_result
+from .transformations import VARIANTS
+from .transducers import (build_transducer, translate, formal_definition,
+                          draw_transducer, save_diagrams)
+from .ordering import PROFILE_ORDER, sort_skills, sort_for_all_profiles
+from .normalizer import normalize, save_result

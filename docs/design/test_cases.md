@@ -25,27 +25,27 @@ Automated in `tests/test_extraction.py` (run with `pytest`). All 14 cases pass.
 
 ## Stage 2 — Normalization
 
-Automated in `tests/test_normalization.py` (run with `pytest`). All cases pass (full suite: 54).
+Automated in `tests/test_normalization.py` (run with `pytest`). All cases pass (full suite: 53).
 
 | # | Scenario | Input | Expected Output |
 |---|---|---|---|
-| 1 | Variant → canonical (parametrized) | `JS`, `Javascript`, `React.js`, `ReactJS`, `NodeJS`, `Postgres`, `sklearn`, `scikit learn`, `Tensor Flow`, `Py Torch`, `K8s`, … | each maps to its canonical form (`JAVASCRIPT`, `REACT`, `NODE_JS`, `POSTGRESQL`, `SCIKIT_LEARN`, `TENSORFLOW`, `PYTORCH`, `KUBERNETES`, …) |
-| 2 | Every declared variant transduces | all `TRANSFORMATIONS` variants | each → its `canonical` |
-| 3 | Unknown token | `COBOL` | `normalize_token` returns `None` |
+| 1 | Variant → canonical (parametrized) | `JS`, `Javascript`, `React.js`, `ReactJS`, `NodeJS`, `Postgres`, `sklearn`, `scikit learn`, `Tensor Flow`, `Py Torch`, `K8s`, `PySpark`, `Hugging Face`, `Helm`, … | `translate(...)` maps each to its canonical form |
+| 2 | Every declared variant translates | all `VARIANTS` variants | each → its `canonical` |
+| 3 | Unknown token | `COBOL` | `translate` returns `None` |
 | 4 | Case-insensitive | `javascript`, `POSTGRES` | `JAVASCRIPT`, `POSTGRESQL` |
-| 5 | Canonical statement example | `Git, NodeJS, JS, Postgres, React.js` + `full_stack` | `[JAVASCRIPT, REACT, NODE_JS, POSTGRESQL, GIT]` |
-| 6 | Order independence | any permutation of #5 input | same sorted output |
-| 7 | Dedup of equivalent variants | `JS, JavaScript, Javascript` | `[JAVASCRIPT]` |
+| 5 | Canonical statement example | `Git, NodeJS, JS, Postgres, React.js` | `by_profile["full_stack"]` == `[JAVASCRIPT, REACT, NODE_JS, POSTGRESQL, GIT]` |
+| 6 | Order independence | any permutation of #5 input | same `by_profile` |
+| 7 | Dedup of equivalent variants | `JS, JavaScript, Javascript` | `canonical` == `[JAVASCRIPT]` |
 | 8 | Unrecognized kept, not dropped | `JS, COBOL, Git` | canonical `[JAVASCRIPT, GIT]`, unrecognized `[COBOL]` |
-| 9 | Unordered canonical appended last | `JS, Ruby, Git` + `full_stack` | `[JAVASCRIPT, GIT, RUBY]` |
-| 10 | Unknown profile rejected | `sort_qualifications(..., "unknown")` | raises `KeyError` |
-| 11 | ML sample end-to-end | Mary Jane Watson résumé + `machine_learning` | `[PYTHON, PANDAS, NUMPY, SCIKIT_LEARN, TENSORFLOW, SQL, GIT]` |
-| 12 | Combined transducer | chars of `js` | `[[JAVASCRIPT]]` |
-| 13 | FST 7-tuple sanity | `M_SCIKIT_LEARN` | start `{q0}`, final `{qf}`, Γ `{SCIKIT_LEARN}`, \|Q\| > 2 |
-| 14 | JSON save round-trip | `normalize([JS, Git], full_stack)` | reloaded `canonical`/`profile`/`mapping` match |
-| 15 | All four profiles available | `available_profiles()` | `[full_stack, machine_learning, ai_engineer, cloud_engineer]` |
-| 16 | AI Engineer ordering | AI résumé tokens + `ai_engineer` | `[PYTHON, PANDAS, PYTORCH, SPARK, HUGGING_FACE, POSTGRESQL, DOCKER, AWS, GIT]` |
-| 17 | Cloud Engineer ordering | Cloud résumé tokens + `cloud_engineer` | `[AWS, AZURE, DOCKER, KUBERNETES, HELM, TERRAFORM, JENKINS, LINUX, GIT]` |
+| 9 | Skill not in profile is dropped | `JS, Ruby, Git` | `by_profile["full_stack]` == `[JAVASCRIPT, GIT]` (RUBY dropped) |
+| 10 | Unknown profile rejected | `sort_skills(..., "unknown")` | raises `KeyError` |
+| 11 | ML sample end-to-end | Mary Jane Watson résumé | `by_profile["machine_learning"]` == `[PYTHON, PANDAS, NUMPY, SCIKIT_LEARN, TENSORFLOW, SQL, GIT]` |
+| 12 | All four profiles available | `PROFILE_ORDER` keys | `[full_stack, machine_learning, ai_engineer, cloud_engineer]` |
+| 13 | AI Engineer ordering | AI résumé tokens | `by_profile["ai_engineer"]` == `[PYTHON, PANDAS, PYTORCH, SPARK, HUGGING_FACE, POSTGRESQL, DOCKER, AWS, GIT]` |
+| 14 | Cloud Engineer ordering | Cloud résumé tokens | `by_profile["cloud_engineer"]` == `[AWS, AZURE, DOCKER, KUBERNETES, HELM, TERRAFORM, JENKINS, LINUX, GIT]` |
+| 15 | FST valid | `build_transducer("SCIKIT_LEARN")` | start `{q0}`, non-empty `F`, `SCIKIT_LEARN` in Γ |
+| 16 | 7-tuple | `formal_definition("JAVASCRIPT")` | `q0`=`q0`, `Γ`=`[JAVASCRIPT]`, non-empty `F`, `|Q|>2` |
+| 17 | JSON save round-trip | `normalize([JS, Git])` | reloaded `canonical`/`translations`/`by_profile` match |
 
 ## Stage 3 — Recognition
 

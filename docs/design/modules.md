@@ -29,24 +29,27 @@ Data structures:
 (profile order + sort), `normalizer.py` (orchestrator), `__main__.py` (CLI).
 
 Data structures:
-- `TRANSFORMATIONS` — a plain `dict[str, list[str]]` mapping each canonical form to the surface
-  variants it accepts (e.g. `"JAVASCRIPT": ["JavaScript", "Javascript", "JS"]`).
-- The normalization result is a plain `dict`: `{"profile", "canonical", "mapping", "unrecognized"}`
-  (`mapping` is a list of `(surface, canonical)` pairs) — easy to show in Streamlit.
+- `VARIANTS` — a plain `dict[str, list[str]]` mapping each canonical form to its (lowercase) surface
+  variants (e.g. `"JAVASCRIPT": ["js", "javascript"]`). One entry = one transducer.
+- `PROFILE_ORDER` — a `dict[str, list[str]]` giving the canonical order per profile.
+- The normalization result is a plain `dict`:
+  `{"canonical", "translations", "unrecognized", "by_profile"}` — `translations` is a
+  `{surface: canonical}` map and `by_profile` is `{profile: [sorted canonical skills]}`. This is easy
+  to show in Streamlit (`st.json`, `st.dataframe`).
 
 | Function | Input | Output | Description |
 |---|---|---|---|
-| `build_transducer(canonical, variants)` | canonical `str`, variants `list[str]` | `FST` | Character-level pyformlang FST accepting the (case-folded) variants and emitting the canonical form. |
-| `build_all()` | — | `dict[str, FST]` | One FST per canonical form, keyed by canonical symbol. |
-| `combined_transducer()` | — | `FST` | Union of all per-canonical FSTs (the single-transducer view). |
-| `normalize_token(token)` | `str` | `str \| None` | Canonical form of a surface token, or `None` if unrecognized. |
-| `export_diagrams(dest, canonicals=None)` | dir, optional subset | written `Path`s | Graphviz `.dot` per transducer (`.png` too if `dot` is installed). |
-| `sort_qualifications(canonical, profile)` | canonical list, profile id | `list[str]` | Reorders into the profile's canonical order; unordered symbols appended last. |
-| `normalize(skills, profile=None)` | surface skills `list[str]` | `dict` | Transduce → dedup → (sort). Returns `{profile, canonical, mapping, unrecognized}`. |
-| `normalize_extraction(data, profile=None)` | extraction `dict` | `dict` | Convenience over `get_skills(data)`. |
+| `build_transducer(canonical)` | canonical `str` | `FST` | Deterministic character-level pyformlang FST that reads a variant and emits the canonical form. Variants that share a prefix share states. |
+| `translate(word)` | `str` | `str \| None` | Lower-cases the word and runs it through each transducer; returns the canonical form or `None`. |
+| `formal_definition(canonical)` | canonical `str` | `dict` | The complete 7-tuple `{Q, Σ, Γ, δ, ω, q0, F}` of that transducer. |
+| `draw_transducer(canonical)` | canonical `str` | `graphviz.Digraph` | The transducer's diagram (graphical representation). |
+| `save_diagrams(folder)` | folder path | — | Writes a `.dot` diagram per transducer. |
+| `sort_skills(canonical, profile)` | canonical list, profile id | `list[str]` | Keeps only the skills present in the profile order, in that order (others are not sent to that profile). |
+| `sort_for_all_profiles(canonical)` | canonical list | `dict` | `{profile: sort_skills(...)}` for every profile. |
+| `normalize(skills)` | surface skills `list[str]` | `dict` | Translate → dedup → sort for every profile. Returns `{canonical, translations, unrecognized, by_profile}`. |
 | `save_result(result, path)` | result `dict`, path | — | Persists the result dict as JSON. |
 
-**CLI:** `python -m resumelens.normalization --input <resume.txt\|extraction.json> [--profile full_stack\|machine_learning\|ai_engineer\|cloud_engineer] [--output <json>]`.
+**CLI:** `python -m resumelens.normalization <resume.txt>` (prints the Stage 1 skills and the normalized result as JSON).
 
 ## Stage 3 — Recognition (`src/resumelens/recognition/`)
 

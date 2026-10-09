@@ -1,73 +1,75 @@
-# Stage 2 - Transformation catalogue (our own transformations).
-# The same qualification is written in many ways across résumés
-# (JS / Javascript / JavaScript). This dictionary maps each canonical form
-# to the surface variants that must become it. These canonical symbols are
-# the output alphabet of the finite-state transducers built in transducers.py.
+# Etapa 2 - Tabla de transformaciones.
+# A la izquierda esta la forma canonica: el nombre "oficial" que escribe el transductor.
+# A la derecha estan las variantes: las formas en que puede venir escrito en la hoja
+# de vida, en minuscula (el texto se pasa a minuscula antes de traducir, asi
+# "JS", "js" y "Js" son la misma entrada).
 #
-# TRANSFORMATIONS[canonical] = [variants...]   (UPPER_SNAKE canonical -> surface forms)
+# Cada fila de este diccionario se convierte en UN transductor (ver transducers.py).
 
-TRANSFORMATIONS = {
-    # programming languages
-    "JAVASCRIPT": ["JavaScript", "Javascript", "JS"],
-    "TYPESCRIPT": ["TypeScript", "TS"],
-    "PYTHON": ["Python", "Py"],
-    "JAVA": ["Java"],
-    "CPP": ["C++"],
-    "CSHARP": ["C#"],
-    "GO": ["Go", "Golang"],
-    "RUBY": ["Ruby"],
-    "PHP": ["PHP"],
-    "KOTLIN": ["Kotlin"],
-    "SWIFT": ["Swift"],
+VARIANTS = {
+    #  lenguajes
+    "JAVASCRIPT": ["js", "javascript"],
+    "TYPESCRIPT": ["ts", "typescript"],
+    "PYTHON": ["python"],
+    "JAVA": ["java"],
+    "CPP": ["c++"],
+    "CSHARP": ["c#"],
+    "GO": ["golang"],
+    "RUBY": ["ruby"],
+    "PHP": ["php"],
+    "KOTLIN": ["kotlin"],
+    "SWIFT": ["swift"],
+    "RUST": ["rust"],
+    "SCALA": ["scala"],
+    "BASH": ["bash"],
 
-    # frameworks and libraries
-    "REACT": ["React", "React.js", "ReactJS"],
-    "ANGULAR": ["Angular"],
-    "VUE": ["Vue", "Vue.js", "VueJS"],
-    "NODE_JS": ["NodeJS", "Node.js", "Node"],
-    "DJANGO": ["Django"],
-    "FLASK": ["Flask"],
-    "FASTAPI": ["FastAPI"],
-    "SPRING_BOOT": ["Spring Boot", "SpringBoot", "Spring"],
-    "EXPRESS": ["Express", "Express.js", "ExpressJS"],
-    "PANDAS": ["Pandas", "pandas"],
-    "NUMPY": ["NumPy", "Numpy"],
-    "SCIKIT_LEARN": ["Scikit-learn", "scikit learn", "sklearn"],
-    "TENSORFLOW": ["TensorFlow", "Tensor Flow"],
-    "PYTORCH": ["PyTorch", "Py Torch"],
-    "KERAS": ["Keras"],
-    "SPARK": ["Apache Spark", "PySpark", "Spark"],
-    "HUGGING_FACE": ["Hugging Face", "HuggingFace"],
+    #  frontend
+    "REACT": ["react", "react.js", "reactjs"],
+    "ANGULAR": ["angular"],
+    "VUE": ["vue", "vue.js", "vuejs"],
 
-    # databases
-    "POSTGRESQL": ["PostgreSQL", "Postgres"],
-    "MYSQL": ["MySQL"],
-    "MARIADB": ["MariaDB"],
-    "SQLITE": ["SQLite"],
-    "MONGODB": ["MongoDB", "Mongo"],
-    "REDIS": ["Redis"],
-    "NOSQL": ["NoSQL"],
-    "SQL": ["SQL"],
+    #backend
+    "NODE_JS": ["node", "node.js", "nodejs"],
+    "EXPRESS": ["express"],
+    "DJANGO": ["django"],
+    "FLASK": ["flask"],
+    "FASTAPI": ["fastapi"],
+    "SPRING_BOOT": ["spring boot", "springboot"],
+    "REST_API": ["rest api", "rest apis", "restapi", "restapis"],
+    "GRAPHQL": ["graphql"],
 
-    # tools and technologies
-    "GIT": ["Git"],
-    "GITHUB": ["GitHub"],
-    "GITLAB": ["GitLab"],
-    "DOCKER": ["Docker"],
-    "KUBERNETES": ["Kubernetes", "K8s"],
-    "JENKINS": ["Jenkins"],
-    "TERRAFORM": ["Terraform"],
-    "ANSIBLE": ["Ansible"],
-    "HELM": ["Helm"],
-    "AWS": ["AWS", "Amazon Web Services"],
-    "AZURE": ["Azure"],
-    "GCP": ["GCP", "Google Cloud"],
-    "REST_API": ["REST API", "REST APIs", "REST"],
-    "GRAPHQL": ["GraphQL"],
-    "LINUX": ["Linux"],
+    # datos y machine learning
+    "PANDAS": ["pandas"],
+    "NUMPY": ["numpy"],
+    "SCIKIT_LEARN": ["scikit-learn", "scikit learn", "scikitlearn", "sklearn"],
+    "TENSORFLOW": ["tensorflow", "tensor flow"],
+    "PYTORCH": ["pytorch", "py torch"],
+    "KERAS": ["keras"],
+    "SPARK": ["spark", "pyspark"],
+    "HUGGING_FACE": ["hugging face", "huggingface"],
+
+    # bases de datos
+    "POSTGRESQL": ["postgres", "postgresql"],
+    "MYSQL": ["mysql"],
+    "SQLITE": ["sqlite"],
+    "MONGODB": ["mongodb", "mongo"],
+    "REDIS": ["redis"],
+    "ORACLE": ["oracle"],
+    "NOSQL": ["nosql"],
+    "SQL": ["sql"],
+
+    #  herramientas y nube
+    "GIT": ["git"],
+    "GITHUB": ["github"],
+    "GITLAB": ["gitlab"],
+    "DOCKER": ["docker"],
+    "KUBERNETES": ["kubernetes", "k8s"],
+    "HELM": ["helm"],
+    "JENKINS": ["jenkins"],
+    "TERRAFORM": ["terraform"],
+    "ANSIBLE": ["ansible"],
+    "AWS": ["aws"],
+    "AZURE": ["azure"],
+    "GCP": ["gcp"],
+    "LINUX": ["linux"],
 }
-
-
-# Returns the list of canonical output symbols (the output alphabet).
-def canonical_forms():
-    return list(TRANSFORMATIONS)

@@ -1,65 +1,65 @@
 digraph {
-SCIKIT_LEARN_26 [is_start=False, is_final=False, peripheries=1, label="SCIKIT_LEARN_26"];
-SCIKIT_LEARN_19 [is_start=False, is_final=False, peripheries=1, label="SCIKIT_LEARN_19"];
-SCIKIT_LEARN_27 [is_start=False, is_final=False, peripheries=1, label="SCIKIT_LEARN_27"];
-SCIKIT_LEARN_25 [is_start=False, is_final=False, peripheries=1, label="SCIKIT_LEARN_25"];
-SCIKIT_LEARN_21 [is_start=False, is_final=False, peripheries=1, label="SCIKIT_LEARN_21"];
-SCIKIT_LEARN_5 [is_start=False, is_final=False, peripheries=1, label="SCIKIT_LEARN_5"];
-SCIKIT_LEARN_20 [is_start=False, is_final=False, peripheries=1, label="SCIKIT_LEARN_20"];
-SCIKIT_LEARN_22 [is_start=False, is_final=False, peripheries=1, label="SCIKIT_LEARN_22"];
-SCIKIT_LEARN_6 [is_start=False, is_final=False, peripheries=1, label="SCIKIT_LEARN_6"];
-SCIKIT_LEARN_17 [is_start=False, is_final=False, peripheries=1, label="SCIKIT_LEARN_17"];
-SCIKIT_LEARN_0 [is_start=False, is_final=False, peripheries=1, label="SCIKIT_LEARN_0"];
-SCIKIT_LEARN_16 [is_start=False, is_final=False, peripheries=1, label="SCIKIT_LEARN_16"];
-SCIKIT_LEARN_24 [is_start=False, is_final=False, peripheries=1, label="SCIKIT_LEARN_24"];
-SCIKIT_LEARN_28 [is_start=False, is_final=False, peripheries=1, label="SCIKIT_LEARN_28"];
-SCIKIT_LEARN_1 [is_start=False, is_final=False, peripheries=1, label="SCIKIT_LEARN_1"];
-SCIKIT_LEARN_12 [is_start=False, is_final=False, peripheries=1, label="SCIKIT_LEARN_12"];
-SCIKIT_LEARN_18 [is_start=False, is_final=False, peripheries=1, label="SCIKIT_LEARN_18"];
-SCIKIT_LEARN_29 [is_start=False, is_final=False, peripheries=1, label="SCIKIT_LEARN_29"];
-SCIKIT_LEARN_8 [is_start=False, is_final=False, peripheries=1, label="SCIKIT_LEARN_8"];
-SCIKIT_LEARN_4 [is_start=False, is_final=False, peripheries=1, label="SCIKIT_LEARN_4"];
-SCIKIT_LEARN_14 [is_start=False, is_final=False, peripheries=1, label="SCIKIT_LEARN_14"];
-SCIKIT_LEARN_10 [is_start=False, is_final=False, peripheries=1, label="SCIKIT_LEARN_10"];
-SCIKIT_LEARN_9 [is_start=False, is_final=False, peripheries=1, label="SCIKIT_LEARN_9"];
-q0 [is_start=True, is_final=False, peripheries=1, label=q0];
-starting_q0 [label="", shape=None, height=0.0, width=0.0];
-qf [is_start=False, is_final=True, peripheries=2, label=qf];
-SCIKIT_LEARN_7 [is_start=False, is_final=False, peripheries=1, label="SCIKIT_LEARN_7"];
-SCIKIT_LEARN_2 [is_start=False, is_final=False, peripheries=1, label="SCIKIT_LEARN_2"];
-SCIKIT_LEARN_13 [is_start=False, is_final=False, peripheries=1, label="SCIKIT_LEARN_13"];
-SCIKIT_LEARN_15 [is_start=False, is_final=False, peripheries=1, label="SCIKIT_LEARN_15"];
-SCIKIT_LEARN_3 [is_start=False, is_final=False, peripheries=1, label="SCIKIT_LEARN_3"];
-SCIKIT_LEARN_26 -> SCIKIT_LEARN_27 [key=0, label="\"e\" -> []"];
-SCIKIT_LEARN_19 -> SCIKIT_LEARN_20 [key=0, label="\"e\" -> []"];
-SCIKIT_LEARN_27 -> SCIKIT_LEARN_28 [key=0, label="\"a\" -> []"];
-SCIKIT_LEARN_25 -> SCIKIT_LEARN_26 [key=0, label="\"l\" -> []"];
-SCIKIT_LEARN_21 -> SCIKIT_LEARN_22 [key=0, label="\"r\" -> []"];
-SCIKIT_LEARN_5 -> SCIKIT_LEARN_6 [key=0, label="\"-\" -> []"];
-SCIKIT_LEARN_20 -> SCIKIT_LEARN_21 [key=0, label="\"a\" -> []"];
-SCIKIT_LEARN_22 -> qf [key=0, label="\"n\" -> []"];
-SCIKIT_LEARN_6 -> SCIKIT_LEARN_7 [key=0, label="\"l\" -> []"];
-SCIKIT_LEARN_17 -> SCIKIT_LEARN_18 [key=0, label="\" \" -> []"];
-SCIKIT_LEARN_0 -> SCIKIT_LEARN_1 [key=0, label="\"c\" -> []"];
-SCIKIT_LEARN_16 -> SCIKIT_LEARN_17 [key=0, label="\"t\" -> []"];
-SCIKIT_LEARN_24 -> SCIKIT_LEARN_25 [key=0, label="\"k\" -> []"];
-SCIKIT_LEARN_28 -> SCIKIT_LEARN_29 [key=0, label="\"r\" -> []"];
-SCIKIT_LEARN_1 -> SCIKIT_LEARN_2 [key=0, label="\"i\" -> []"];
-SCIKIT_LEARN_12 -> SCIKIT_LEARN_13 [key=0, label="\"c\" -> []"];
-SCIKIT_LEARN_18 -> SCIKIT_LEARN_19 [key=0, label="\"l\" -> []"];
-SCIKIT_LEARN_29 -> qf [key=0, label="\"n\" -> []"];
-SCIKIT_LEARN_8 -> SCIKIT_LEARN_9 [key=0, label="\"a\" -> []"];
-SCIKIT_LEARN_4 -> SCIKIT_LEARN_5 [key=0, label="\"t\" -> []"];
-SCIKIT_LEARN_14 -> SCIKIT_LEARN_15 [key=0, label="\"k\" -> []"];
-SCIKIT_LEARN_10 -> qf [key=0, label="\"n\" -> []"];
-SCIKIT_LEARN_9 -> SCIKIT_LEARN_10 [key=0, label="\"r\" -> []"];
-q0 -> SCIKIT_LEARN_0 [key=0, label="\"s\" -> [\"SCIKIT_LEARN\"]"];
-q0 -> SCIKIT_LEARN_12 [key=0, label="\"s\" -> [\"SCIKIT_LEARN\"]"];
-q0 -> SCIKIT_LEARN_24 [key=0, label="\"s\" -> [\"SCIKIT_LEARN\"]"];
-starting_q0 -> q0 [key=0];
-SCIKIT_LEARN_7 -> SCIKIT_LEARN_8 [key=0, label="\"e\" -> []"];
-SCIKIT_LEARN_2 -> SCIKIT_LEARN_3 [key=0, label="\"k\" -> []"];
-SCIKIT_LEARN_13 -> SCIKIT_LEARN_14 [key=0, label="\"i\" -> []"];
-SCIKIT_LEARN_15 -> SCIKIT_LEARN_16 [key=0, label="\"i\" -> []"];
-SCIKIT_LEARN_3 -> SCIKIT_LEARN_4 [key=0, label="\"i\" -> []"];
+	rankdir=LR
+	node [fontname=Helvetica]
+	__init__ [label="" height=0 shape=none width=0]
+	__init__ -> q0
+	q0 [fillcolor=lightblue shape=circle style=filled]
+	q1 [shape=circle]
+	q0 -> q1 [label=" s / SCIKIT_LEARN "]
+	q2 [shape=circle]
+	q1 -> q2 [label=" c / ε "]
+	q3 [shape=circle]
+	q2 -> q3 [label=" i / ε "]
+	q4 [shape=circle]
+	q3 -> q4 [label=" k / ε "]
+	q5 [shape=circle]
+	q4 -> q5 [label=" i / ε "]
+	q6 [shape=circle]
+	q5 -> q6 [label=" t / ε "]
+	q7 [shape=circle]
+	q6 -> q7 [label=" - / ε "]
+	q8 [shape=circle]
+	q7 -> q8 [label=" l / ε "]
+	q9 [shape=circle]
+	q8 -> q9 [label=" e / ε "]
+	q10 [shape=circle]
+	q9 -> q10 [label=" a / ε "]
+	q11 [shape=circle]
+	q10 -> q11 [label=" r / ε "]
+	q12 [shape=doublecircle]
+	q11 -> q12 [label=" n / ε "]
+	q13 [shape=circle]
+	q6 -> q13 [label=" ␣ / ε "]
+	q14 [shape=circle]
+	q13 -> q14 [label=" l / ε "]
+	q15 [shape=circle]
+	q14 -> q15 [label=" e / ε "]
+	q16 [shape=circle]
+	q15 -> q16 [label=" a / ε "]
+	q17 [shape=circle]
+	q16 -> q17 [label=" r / ε "]
+	q18 [shape=doublecircle]
+	q17 -> q18 [label=" n / ε "]
+	q19 [shape=circle]
+	q6 -> q19 [label=" l / ε "]
+	q20 [shape=circle]
+	q19 -> q20 [label=" e / ε "]
+	q21 [shape=circle]
+	q20 -> q21 [label=" a / ε "]
+	q22 [shape=circle]
+	q21 -> q22 [label=" r / ε "]
+	q23 [shape=doublecircle]
+	q22 -> q23 [label=" n / ε "]
+	q24 [shape=circle]
+	q1 -> q24 [label=" k / ε "]
+	q25 [shape=circle]
+	q24 -> q25 [label=" l / ε "]
+	q26 [shape=circle]
+	q25 -> q26 [label=" e / ε "]
+	q27 [shape=circle]
+	q26 -> q27 [label=" a / ε "]
+	q28 [shape=circle]
+	q27 -> q28 [label=" r / ε "]
+	q29 [shape=doublecircle]
+	q28 -> q29 [label=" n / ε "]
 }

@@ -1,71 +1,62 @@
-# Stage 2 - Canonical ordering per professional profile.
-# After the transducers produce the canonical forms, they are reordered into
-# the order defined by the chosen profile, so the result no longer depends on
-# the order in which the candidate wrote the information in the résumé.
+# Etapa 2 - Orden canonico de cada perfil.
 #
-# Example (Full Stack): Git, NodeJS, JS, Postgres, React.js
-#   -> normalized & sorted: JAVASCRIPT, REACT, NODE_JS, POSTGRESQL, GIT
+# El enunciado pide ordenar las habilidades normalizadas segun el perfil, para que
+# el resultado no dependa del orden en que la persona escribio su hoja de vida.
+# El automata de la etapa 3 lee los simbolos en secuencia, asi que necesita que
+# siempre lleguen en el mismo orden.
+#
+# Decision de diseño: a cada perfil solo se le pasan las habilidades que estan en
+# su lista. Por ejemplo, si alguien tiene React, eso no le sirve al automata de
+# Cloud Engineer, entonces no se le manda. Asi los automatas son mas sencillos.
 
-# Full Stack Developer: Frontend -> Backend -> Database -> Version control.
-_FULL_STACK = [
-    "JAVASCRIPT", "TYPESCRIPT", "REACT", "ANGULAR", "VUE",
-    "NODE_JS", "DJANGO", "SPRING_BOOT", "EXPRESS", "FASTAPI", "FLASK",
-    "POSTGRESQL", "MYSQL", "MONGODB", "SQL", "NOSQL",
-    "GIT", "GITHUB", "DOCKER", "KUBERNETES", "REST_API", "GRAPHQL",
-]
-
-# Machine Learning Engineer: language -> data libs -> ML libs -> database -> tools.
-_MACHINE_LEARNING = [
-    "PYTHON",
-    "PANDAS", "NUMPY",
-    "SCIKIT_LEARN", "TENSORFLOW", "PYTORCH", "KERAS",
-    "SQL", "POSTGRESQL", "MONGODB",
-    "GIT", "DOCKER", "AWS",
-]
-
-# AI Engineer: language -> data -> ML/DL -> big data & GenAI -> database -> deployment.
-_AI_ENGINEER = [
-    "PYTHON",
-    "PANDAS", "NUMPY",
-    "SCIKIT_LEARN", "TENSORFLOW", "PYTORCH", "KERAS",
-    "SPARK", "HUGGING_FACE",
-    "SQL", "POSTGRESQL", "MONGODB", "REDIS",
-    "DOCKER", "KUBERNETES", "AWS", "GCP", "GIT",
-]
-
-# Cloud Engineer: platforms -> containers -> IaC -> CI/CD -> OS -> database -> version control.
-_CLOUD_ENGINEER = [
-    "AWS", "AZURE", "GCP",
-    "DOCKER", "KUBERNETES", "HELM",
-    "TERRAFORM", "ANSIBLE",
-    "JENKINS", "GITHUB", "GITLAB",
-    "LINUX", "PYTHON", "GO",
-    "POSTGRESQL", "MYSQL", "MONGODB", "REDIS", "SQL",
-    "GIT",
-]
-
-# Canonical order per profile, keyed by the identifier used in the CLI.
 PROFILE_ORDER = {
-    "full_stack": _FULL_STACK,
-    "machine_learning": _MACHINE_LEARNING,
-    "ai_engineer": _AI_ENGINEER,
-    "cloud_engineer": _CLOUD_ENGINEER,
+    "full_stack": [
+        "JAVASCRIPT", "TYPESCRIPT", "REACT", "ANGULAR", "VUE",
+        "NODE_JS", "DJANGO", "SPRING_BOOT", "EXPRESS", "FASTAPI", "FLASK",
+        "POSTGRESQL", "MYSQL", "MONGODB", "SQL", "NOSQL",
+        "GIT", "GITHUB", "DOCKER", "KUBERNETES", "REST_API", "GRAPHQL",
+    ],
+
+    "machine_learning": [
+        "PYTHON",
+        "PANDAS", "NUMPY",
+        "SCIKIT_LEARN", "TENSORFLOW", "PYTORCH", "KERAS",
+        "SQL", "POSTGRESQL", "MONGODB",
+        "GIT", "DOCKER", "AWS",
+    ],
+
+    "ai_engineer": [
+        "PYTHON",
+        "PANDAS", "NUMPY",
+        "SCIKIT_LEARN", "TENSORFLOW", "PYTORCH", "KERAS",
+        "SPARK", "HUGGING_FACE",
+        "SQL", "POSTGRESQL", "MONGODB", "REDIS",
+        "DOCKER", "KUBERNETES", "AWS", "GCP", "GIT",
+    ],
+
+    "cloud_engineer": [
+        "AWS", "AZURE", "GCP",
+        "DOCKER", "KUBERNETES", "HELM",
+        "TERRAFORM", "ANSIBLE",
+        "JENKINS", "GITHUB", "GITLAB",
+        "LINUX", "PYTHON", "GO",
+        "POSTGRESQL", "MYSQL", "MONGODB", "REDIS", "SQL",
+        "GIT",
+    ],
 }
 
 
-# Returns the profile identifiers that define a canonical order.
-def available_profiles():
-    return list(PROFILE_ORDER)
-
-
-# Reordena los canonicos segun el orden del perfil.
-# Los que estan en el orden del perfil van primero (en ese orden); los que no,
-# se agregan al final en el orden en que llegaron (no se pierde nada).
-def sort_qualifications(canonical, profile):
-    if profile not in PROFILE_ORDER:
-        raise KeyError(f"Unknown profile {profile!r}; available: {', '.join(PROFILE_ORDER)}")
+def sort_skills(canonical_skills, profile):
     order = PROFILE_ORDER[profile]
-    present = set(canonical)
-    ordered = [symbol for symbol in order if symbol in present]      # los del perfil, en su orden
-    remaining = [symbol for symbol in canonical if symbol not in order]  # los extra, al final
-    return ordered + remaining
+    sorted_skills = []
+    for skill in order:
+        if skill in canonical_skills:
+            sorted_skills.append(skill)
+    return sorted_skills
+
+
+def sort_for_all_profiles(canonical_skills):
+    result = {}
+    for profile in PROFILE_ORDER:
+        result[profile] = sort_skills(canonical_skills, profile)
+    return result
