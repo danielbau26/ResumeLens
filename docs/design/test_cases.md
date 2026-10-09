@@ -25,12 +25,12 @@ Automated in `tests/test_extraction.py` (run with `pytest`). All 14 cases pass.
 
 ## Stage 2 — Normalization
 
-Automated in `tests/test_normalization.py` (run with `pytest`). All cases pass (full suite: 52).
+Automated in `tests/test_normalization.py` (run with `pytest`). All cases pass (full suite: 54).
 
 | # | Scenario | Input | Expected Output |
 |---|---|---|---|
 | 1 | Variant → canonical (parametrized) | `JS`, `Javascript`, `React.js`, `ReactJS`, `NodeJS`, `Postgres`, `sklearn`, `scikit learn`, `Tensor Flow`, `Py Torch`, `K8s`, … | each maps to its canonical form (`JAVASCRIPT`, `REACT`, `NODE_JS`, `POSTGRESQL`, `SCIKIT_LEARN`, `TENSORFLOW`, `PYTORCH`, `KUBERNETES`, …) |
-| 2 | Every declared variant transduces | all `RULES` variants | each → its `canonical` |
+| 2 | Every declared variant transduces | all `TRANSFORMATIONS` variants | each → its `canonical` |
 | 3 | Unknown token | `COBOL` | `normalize_token` returns `None` |
 | 4 | Case-insensitive | `javascript`, `POSTGRES` | `JAVASCRIPT`, `POSTGRESQL` |
 | 5 | Canonical statement example | `Git, NodeJS, JS, Postgres, React.js` + `full_stack` | `[JAVASCRIPT, REACT, NODE_JS, POSTGRESQL, GIT]` |

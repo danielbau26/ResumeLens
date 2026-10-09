@@ -29,21 +29,22 @@ Data structures:
 (profile order + sort), `normalizer.py` (orchestrator), `__main__.py` (CLI).
 
 Data structures:
-- `TransductionRule(canonical, variants, category)` — a canonical form and the surface variants it accepts.
-- `NormalizationResult(canonical, mapping, unrecognized, profile)` — canonical output plus a
-  surface→canonical trace and the tokens no transducer recognized.
+- `TRANSFORMATIONS` — a plain `dict[str, list[str]]` mapping each canonical form to the surface
+  variants it accepts (e.g. `"JAVASCRIPT": ["JavaScript", "Javascript", "JS"]`).
+- The normalization result is a plain `dict`: `{"profile", "canonical", "mapping", "unrecognized"}`
+  (`mapping` is a list of `(surface, canonical)` pairs) — easy to show in Streamlit.
 
 | Function | Input | Output | Description |
 |---|---|---|---|
-| `build_transducer(rule)` | `TransductionRule` | `FST` | Character-level pyformlang FST accepting the (case-folded) variants and emitting the canonical form. |
+| `build_transducer(canonical, variants)` | canonical `str`, variants `list[str]` | `FST` | Character-level pyformlang FST accepting the (case-folded) variants and emitting the canonical form. |
 | `build_all()` | — | `dict[str, FST]` | One FST per canonical form, keyed by canonical symbol. |
-| `combined_transducer()` | — | `FST` | Union of all per-rule FSTs (the single-transducer view). |
+| `combined_transducer()` | — | `FST` | Union of all per-canonical FSTs (the single-transducer view). |
 | `normalize_token(token)` | `str` | `str \| None` | Canonical form of a surface token, or `None` if unrecognized. |
 | `export_diagrams(dest, canonicals=None)` | dir, optional subset | written `Path`s | Graphviz `.dot` per transducer (`.png` too if `dot` is installed). |
 | `sort_qualifications(canonical, profile)` | canonical list, profile id | `list[str]` | Reorders into the profile's canonical order; unordered symbols appended last. |
-| `normalize(tokens, profile=None)` | surface tokens | `NormalizationResult` | Transduce → dedup → (sort). Keeps a mapping trace and unrecognized bucket. |
-| `normalize_extraction(data, profile=None)` | extraction `dict` | `NormalizationResult` | Convenience over `get_skills(data)`. |
-| `save_result(result, path)` | result, path | written `Path` | Persists the result as JSON. |
+| `normalize(skills, profile=None)` | surface skills `list[str]` | `dict` | Transduce → dedup → (sort). Returns `{profile, canonical, mapping, unrecognized}`. |
+| `normalize_extraction(data, profile=None)` | extraction `dict` | `dict` | Convenience over `get_skills(data)`. |
+| `save_result(result, path)` | result `dict`, path | — | Persists the result dict as JSON. |
 
 **CLI:** `python -m resumelens.normalization --input <resume.txt\|extraction.json> [--profile full_stack\|machine_learning\|ai_engineer\|cloud_engineer] [--output <json>]`.
 

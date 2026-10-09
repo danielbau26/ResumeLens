@@ -32,8 +32,10 @@ first blanks emails and URLs with `re.sub` and searches the remaining categories
 
 ## 2. Finite-State Transducers (Stage 2 — Normalization)
 
-Each transformation rule (`src/resumelens/normalization/transformations.py`) is compiled into a
-**character-level** finite-state transducer with pyformlang (`transducers.py`). Design:
+Each entry of the transformation catalogue (`TRANSFORMATIONS`, a plain `dict[str, list[str]]` in
+`src/resumelens/normalization/transformations.py`) is compiled by `build_transducer(canonical,
+variants)` into a **character-level** finite-state transducer with pyformlang (`transducers.py`).
+Design:
 
 - The input alphabet **Σ** is the set of characters of the accepted variants; matching is performed on
   a **case-folded** token, so casing variants (`JS` / `js`) share paths and Σ stays lowercase.

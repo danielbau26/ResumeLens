@@ -1,24 +1,8 @@
-"""Stage 2 finite-state transducers, implemented with pyformlang.
-
-Each :class:`~resumelens.normalization.transformations.TransductionRule` is
-compiled into a **character-level** finite-state transducer (FST):
-
-* the input alphabet ``Σ`` is the set of characters of the accepted variants
-  (matching is done on a case-folded token, so ``JS`` and ``js`` share paths);
-* the output alphabet ``Γ`` is the singleton canonical symbol, e.g.
-  ``{JAVASCRIPT}``;
-* every variant is a path of states from the start state ``q0`` that converges
-  on a single accepting state; the canonical symbol is emitted on the first
-  transition (``ω``) and the empty string on the rest.
-
-Thus running :meth:`pyformlang.fst.FST.translate` on the characters of any
-accepted variant yields the canonical form, and any other word yields nothing.
-A :func:`combined_transducer` unions all per-rule FSTs into the single
-transducer view, and :func:`export_diagrams` renders the graphical
-representation required by the assignment.
-"""
-
-from __future__ import annotations
+# Stage 2 - Finite-state transducers (FST) built with pyformlang.
+# For each canonical form we build one character-level transducer: it reads a
+# word one character at a time and, if the word is one of the known variants,
+# it outputs the canonical form. This is the formal model required by the
+# assignment (the 7-tuple M = (Q, Σ, Γ, δ, ω, q0, F)).
 
 import shutil
 import subprocess
@@ -26,116 +10,90 @@ from pathlib import Path
 
 from pyformlang.fst import FST
 
-from .transformations import RULES, TransductionRule
+from .transformations import TRANSFORMATIONS
 
 
-def _fold(token: str) -> str:
-    """Case-normalize a token so casing variants collapse onto shared paths."""
-    return token.casefold()
-
-
-def build_transducer(rule: TransductionRule) -> FST:
-    """Build the character-level FST for a single transformation ``rule``.
-
-    The FST accepts exactly the (case-folded) variants of ``rule`` and outputs
-    ``rule.canonical`` once per accepted word.
-    """
+# Construye UN transductor para una forma canonica y sus variantes.
+# Ejemplo: build_transducer("JAVASCRIPT", ["JavaScript", "JS"])
+def build_transducer(canonical, variants):
     fst = FST()
-    start = "q0"
-    accept = "qf"
-    fst.add_start_state(start)
-    fst.add_final_state(accept)
+    # q0 = estado inicial, qf = estado final (de aceptacion)
+    fst.add_start_state("q0")
+    fst.add_final_state("qf")
 
+    # counter da nombres unicos a los estados intermedios, asi las variantes
+    # no se mezclan entre si por accidente.
     counter = 0
-    for variant in rule.variants:
-        symbols = list(_fold(variant))
+    for variant in variants:
+        # casefold() pasa a minusculas: "JS" -> ['j', 's']. Asi "JS" y "js"
+        # recorren el mismo camino y no hay que duplicar variantes.
+        symbols = list(variant.casefold())
         if not symbols:
             continue
-        # Walk the characters, creating fresh intermediate states per variant so
-        # that branches only merge at the shared accepting state.
-        current = start
+        current = "q0"
         for index, symbol in enumerate(symbols):
             is_last = index == len(symbols) - 1
-            target = accept if is_last else f"{rule.canonical}_{counter}"
+            # el ultimo caracter lleva al estado final; los demas a uno nuevo
+            target = "qf" if is_last else f"{canonical}_{counter}"
             counter += 1
-            # Emit the canonical symbol on the first transition, nothing after.
-            output = [rule.canonical] if index == 0 else []
+            # emite la forma canonica SOLO en el primer caracter; el resto emite nada
+            output = [canonical] if index == 0 else []
             fst.add_transition(current, symbol, target, output)
             current = target
     return fst
 
 
-def build_all() -> dict[str, FST]:
-    """Build one FST per canonical form, keyed by the canonical symbol."""
-    return {rule.canonical: build_transducer(rule) for rule in RULES}
+# Construye un transductor por cada forma canonica del catalogo.
+# Devuelve un diccionario {canonico: FST}.
+def build_all():
+    return {canonical: build_transducer(canonical, variants)
+            for canonical, variants in TRANSFORMATIONS.items()}
 
 
-def combined_transducer() -> FST:
-    """Union every per-rule FST into a single transducer.
-
-    This is the "one transducer" view: it accepts the variants of *all* rules
-    and outputs the corresponding canonical symbol for each.
-    """
-    fst: FST | None = None
-    for rule in RULES:
-        current = build_transducer(rule)
+# Une todos los transductores en una sola maquina (la vista de "un transductor").
+def combined_transducer():
+    fst = None
+    for canonical, variants in TRANSFORMATIONS.items():
+        current = build_transducer(canonical, variants)
         fst = current if fst is None else fst.union(current)
     return fst if fst is not None else FST()
 
 
-# A cached per-rule map so token normalization does not rebuild FSTs each call.
-_TRANSDUCERS: dict[str, FST] = {}
+# Cache a nivel de modulo: los transductores se construyen una sola vez.
+_TRANSDUCERS = {}
 
 
-def normalize_token(token: str) -> str | None:
-    """Return the canonical form of ``token`` or ``None`` if unrecognized.
-
-    Runs the token's characters through each rule's FST and returns the first
-    canonical symbol produced. Because variant sets are disjoint, at most one
-    rule accepts a given token.
-    """
+# Traduce un token a su forma canonica, o None si ningun transductor lo acepta.
+def normalize_token(token):
     if not _TRANSDUCERS:
         _TRANSDUCERS.update(build_all())
-    symbols = list(_fold(token.strip()))
+    symbols = list(token.strip().casefold())
     for canonical, fst in _TRANSDUCERS.items():
+        # translate() ejecuta el FST sobre los caracteres del token
         for output in fst.translate(symbols):
             if output:
                 return output[0]
     return None
 
 
-def export_diagrams(dest_dir: str | Path, canonicals: list[str] | None = None) -> list[Path]:
-    """Write a Graphviz diagram per transducer into ``dest_dir``.
-
-    A ``.dot`` file is always written (via :meth:`FST.write_as_dot`); a ``.png``
-    is additionally rendered when the Graphviz ``dot`` binary is available.
-
-    Args:
-        dest_dir: Output directory (created if missing).
-        canonicals: Optional subset of canonical names to export; defaults to
-            all rules.
-
-    Returns:
-        The list of files written.
-    """
+# Exporta un diagrama Graphviz (.dot) por transductor, y .png si "dot" esta instalado.
+# Es la representacion grafica que pide el enunciado.
+def export_diagrams(dest_dir, canonicals=None):
     destination = Path(dest_dir)
     destination.mkdir(parents=True, exist_ok=True)
     transducers = build_all()
     if canonicals is not None:
-        transducers = {name: transducers[name] for name in canonicals if name in transducers}
+        transducers = {c: transducers[c] for c in canonicals if c in transducers}
 
     dot_binary = shutil.which("dot")
-    written: list[Path] = []
+    written = []
     for canonical, fst in transducers.items():
         dot_path = destination / f"{canonical}.dot"
         fst.write_as_dot(str(dot_path))
         written.append(dot_path)
         if dot_binary:
             png_path = destination / f"{canonical}.png"
-            subprocess.run(
-                [dot_binary, "-Tpng", str(dot_path), "-o", str(png_path)],
-                check=False,
-            )
+            subprocess.run([dot_binary, "-Tpng", str(dot_path), "-o", str(png_path)], check=False)
             if png_path.exists():
                 written.append(png_path)
     return written

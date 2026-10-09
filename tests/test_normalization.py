@@ -9,6 +9,7 @@ import pytest
 
 from resumelens.extraction import extract_from_file
 from resumelens.normalization import (
+    available_profiles,
     build_transducer,
     combined_transducer,
     normalize,
@@ -17,7 +18,7 @@ from resumelens.normalization import (
     save_result,
     sort_qualifications,
 )
-from resumelens.normalization.transformations import RULES, rule_for_canonical
+from resumelens.normalization.transformations import TRANSFORMATIONS
 
 
 @pytest.mark.parametrize(
@@ -55,9 +56,9 @@ def test_transducer_maps_variant_to_canonical(surface, canonical):
 
 def test_all_declared_variants_transduce_to_their_canonical():
     """Every variant in the catalogue must transduce to its canonical form."""
-    for rule in RULES:
-        for variant in rule.variants:
-            assert normalize_token(variant) == rule.canonical
+    for canonical, variants in TRANSFORMATIONS.items():
+        for variant in variants:
+            assert normalize_token(variant) == canonical
 
 
 def test_unknown_token_is_not_recognized():
@@ -72,34 +73,34 @@ def test_matching_is_case_insensitive():
 def test_canonical_example_from_statement():
     """Git, NodeJS, JS, Postgres, React.js -> JAVASCRIPT, REACT, NODE_JS, POSTGRESQL, GIT."""
     result = normalize(["Git", "NodeJS", "JS", "Postgres", "React.js"], profile="full_stack")
-    assert result.canonical == ["JAVASCRIPT", "REACT", "NODE_JS", "POSTGRESQL", "GIT"]
-    assert result.unrecognized == []
+    assert result["canonical"] == ["JAVASCRIPT", "REACT", "NODE_JS", "POSTGRESQL", "GIT"]
+    assert result["unrecognized"] == []
 
 
 def test_output_is_independent_of_input_order():
     """Any permutation of the same résumé yields the same sorted output."""
     a = normalize(["Git", "NodeJS", "JS", "Postgres", "React.js"], profile="full_stack")
     b = normalize(["React.js", "Git", "Postgres", "JS", "NodeJS"], profile="full_stack")
-    assert a.canonical == b.canonical
+    assert a["canonical"] == b["canonical"]
 
 
 def test_deduplication_of_equivalent_variants():
     """JS and JavaScript collapse to a single JAVASCRIPT."""
     result = normalize(["JS", "JavaScript", "Javascript"], profile="full_stack")
-    assert result.canonical == ["JAVASCRIPT"]
+    assert result["canonical"] == ["JAVASCRIPT"]
 
 
 def test_unrecognized_tokens_are_kept_not_dropped():
     result = normalize(["JS", "COBOL", "Git"], profile="full_stack")
-    assert result.canonical == ["JAVASCRIPT", "GIT"]
-    assert result.unrecognized == ["COBOL"]
+    assert result["canonical"] == ["JAVASCRIPT", "GIT"]
+    assert result["unrecognized"] == ["COBOL"]
 
 
 def test_unordered_canonical_appended_at_end():
     """A canonical form not in the profile order is appended last."""
     # RUBY is a valid canonical but not part of the full_stack order.
     result = normalize(["JS", "Ruby", "Git"], profile="full_stack")
-    assert result.canonical == ["JAVASCRIPT", "GIT", "RUBY"]
+    assert result["canonical"] == ["JAVASCRIPT", "GIT", "RUBY"]
 
 
 def test_sort_requires_known_profile():
@@ -112,14 +113,12 @@ def test_ml_sample_end_to_end():
     data_dir = Path(__file__).resolve().parents[1] / "data" / "sample_resumes"
     extraction = extract_from_file(data_dir / "mary_jane_watson.txt")
     result = normalize_extraction(extraction, profile="machine_learning")
-    assert result.canonical == [
+    assert result["canonical"] == [
         "PYTHON", "PANDAS", "NUMPY", "SCIKIT_LEARN", "TENSORFLOW", "SQL", "GIT",
     ]
 
 
 def test_all_four_profiles_are_available():
-    from resumelens.normalization import available_profiles
-
     assert available_profiles() == [
         "full_stack", "machine_learning", "ai_engineer", "cloud_engineer",
     ]
@@ -131,7 +130,7 @@ def test_ai_engineer_profile_ordering():
         ["Git", "Python", "PyTorch", "Pandas", "Hugging Face", "PySpark", "Postgres", "Docker", "AWS"],
         profile="ai_engineer",
     )
-    assert result.canonical == [
+    assert result["canonical"] == [
         "PYTHON", "PANDAS", "PYTORCH", "SPARK", "HUGGING_FACE",
         "POSTGRESQL", "DOCKER", "AWS", "GIT",
     ]
@@ -143,7 +142,7 @@ def test_cloud_engineer_profile_ordering():
         ["Git", "Terraform", "Docker", "AWS", "Kubernetes", "Helm", "Jenkins", "Linux", "Azure"],
         profile="cloud_engineer",
     )
-    assert result.canonical == [
+    assert result["canonical"] == [
         "AWS", "AZURE", "DOCKER", "KUBERNETES", "HELM",
         "TERRAFORM", "JENKINS", "LINUX", "GIT",
     ]
@@ -155,8 +154,8 @@ def test_combined_transducer_translates_a_variant():
 
 
 def test_transducer_is_a_valid_fst_tuple():
-    """A per-rule FST exposes the 7-tuple components expected by the report."""
-    fst = build_transducer(rule_for_canonical("SCIKIT_LEARN"))
+    """A per-canonical FST exposes the 7-tuple components expected by the report."""
+    fst = build_transducer("SCIKIT_LEARN", TRANSFORMATIONS["SCIKIT_LEARN"])
     assert fst.start_states == {"q0"}
     assert fst.final_states == {"qf"}
     assert set(fst.output_symbols) == {"SCIKIT_LEARN"}
@@ -165,7 +164,8 @@ def test_transducer_is_a_valid_fst_tuple():
 
 def test_save_result_roundtrip(tmp_path: Path):
     result = normalize(["JS", "Git"], profile="full_stack")
-    out = save_result(result, tmp_path / "norm.json")
+    out = tmp_path / "norm.json"
+    save_result(result, out)
     loaded = json.loads(out.read_text(encoding="utf-8"))
     assert loaded["canonical"] == ["JAVASCRIPT", "GIT"]
     assert loaded["profile"] == "full_stack"
