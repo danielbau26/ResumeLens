@@ -1,0 +1,48 @@
+# Stage 3 - Finite automata built with pyformlang, one per profile.
+# Each group of the profile is one step: from state q(i) the automaton moves to
+# q(i+1) by reading any symbol of the group, and q(i+1) has a loop with the same
+# symbols in case the candidate has several of them (e.g. PANDAS and NUMPY).
+# An optional group also has an ε-transition that allows skipping it.
+# Extras are loops on the final state.
+# A profile without optional groups is a DFA; with optional groups it is an ε-NFA.
+import graphviz
+from pyformlang.finite_automaton import (DeterministicFiniteAutomaton, EpsilonNFA,
+                                         State, Symbol, Epsilon)
+ 
+from .profiles import PROFILES
+ 
+# este metodo arma las flechas del automata, como en el del transducer
+def build_transitions(profile_key):
+    
+    profile = PROFILES[profile_key]  # name, groups y extras del perfil
+    groups = profile["groups"] # saca los pasos que debe cumplir, grupo del perfil
+    transitions = [] #lista de ; flechas. Cada flecha va a ser una tupla (desde, símbolo, hacia).
+
+    # recorre los pasos, enumerate da la posicion y el paso
+    for i, group in enumerate(groups):
+        #para el primer paso i=0, entonces conecta q0 -> q1 ... 
+        before = "q" + str(i)
+        after = "q" + str(i + 1)
+
+        #para cada palabra del paso agrega 2 flechas
+        #(before, symbol, after) es la flecha que avanza. Por ejemplo, ("q1", "PANDAS", "q2").
+        #(after, symbol, after) es el bucle, que sale de q2 y vuelve a q2. Por ejemplo, ("q2", "NUMPY", "q2"). 
+        # Sirve para cuando el candidato tiene varias cosas del mismo paso (PANDAS y NUMPY).
+        for symbol in group["symbols"]:
+            transitions.append((before, symbol, after))
+            transitions.append((after, symbol, after))
+        # si el paso es opcional, agrega una flecha ε de la casilla de antes a la de despues, 
+        # que permite pasar sin leer nada, aqui "ε", es solo un texto de marca; mas abajo en 
+        # build, se cambia por Epsilon()
+        if group["optional"]:
+            transitions.append((before, "ε", after))
+    # la casilla del final es el ultimo paso, si hay cinco estas irian de q0 a q5. 
+    final = "q" + str(len(groups))
+    # por cada extra que haya al final agrega un bucle en la meta
+    # eje: ("q5", "DOCKER", "q5")
+    for symbol in profile["extras"]:
+        transitions.append((final, symbol, final))
+    # Al final devuelve la lista de flechas y el nombre del estado final qx.
+    return transitions, final
+ 
+ 
