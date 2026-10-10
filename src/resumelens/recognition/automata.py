@@ -44,5 +44,44 @@ def build_transitions(profile_key):
         transitions.append((final, symbol, final))
     # Al final devuelve la lista de flechas y el nombre del estado final qx.
     return transitions, final
+
+# decide si es DFA o ε-NFA
+def automaton_type(profile_key):
+    profile = PROFILES[profile_key]
+    groups = profile["groups"] 
+    # reocrre los pasos del perfil , apenas encuentra uno opcional, devuelve ε-NFA
+    for group in groups:
+        if group["optional"]:
+            return "ε-NFA"
+    return "DFA"
+
+#crea el automata con pyformlang
+def build_automaton(profile_key):
+    # solo llamo metodos
+    # me da las felchas y el nombre del estado final 
+    transitions, final = build_transitions(profile_key)
+    # crea el automata dependiendo del tipo 
+    if automaton_type(profile_key) == "DFA":
+        automaton = DeterministicFiniteAutomaton()
+    else:
+        automaton = EpsilonNFA()
+    #Marca q0 como estado inicial y la meta como estado final.
+    automaton.add_start_state(State("q0"))
+    automaton.add_final_state(State(final))
+
+    # recorre las flechas en sus tres partes, si el simbolo es "ε"
+    # agrega la transicion con EPsilon(), si no con el simbolo
+    # al final devuelve el automata listo.
+    for start, symbol, end in transitions:
+        if symbol == "ε":
+            automaton.add_transition(State(start), Epsilon(), State(end))
+        else:
+            automaton.add_transition(State(start), Symbol(symbol), State(end))
  
+    return automaton
  
+#Crea los 4 autómatas una sola vez, al importar el archivo, y los guarda en un
+#  diccionario: {"full_stack": autómata, "machine_learning": autómata, ...}
+AUTOMATA = {}
+for profile_key in PROFILES:
+    AUTOMATA[profile_key] = build_automaton(profile_key)
