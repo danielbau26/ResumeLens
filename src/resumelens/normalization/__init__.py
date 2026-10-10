@@ -1,35 +1,7 @@
-"""Stage 2 — Qualification normalization using finite-state transducers."""
-
-from .normalizer import (
-    NormalizationResult,
-    normalize,
-    normalize_extraction,
-    save_result,
-)
-from .ordering import PROFILE_ORDER, available_profiles, sort_qualifications
-from .transducers import (
-    build_all,
-    build_transducer,
-    combined_transducer,
-    export_diagrams,
-    normalize_token,
-)
-from .transformations import RULES, TransductionRule, canonical_forms
-
-__all__ = [
-    "NormalizationResult",
-    "normalize",
-    "normalize_extraction",
-    "save_result",
-    "PROFILE_ORDER",
-    "available_profiles",
-    "sort_qualifications",
-    "build_all",
-    "build_transducer",
-    "combined_transducer",
-    "export_diagrams",
-    "normalize_token",
-    "RULES",
-    "TransductionRule",
-    "canonical_forms",
-]
+# Hace que "normalization" sea un paquete y permite importar mas corto:
+#   from resumelens.normalization import normalize
+from .transformations import VARIANTS
+from .transducers import (build_transducer, translate, formal_definition,
+                          draw_transducer, save_diagrams)
+from .ordering import PROFILE_ORDER, sort_skills, sort_for_all_profiles
+from .normalizer import normalize, save_result

@@ -1,65 +1,14 @@
-"""Command-line entry point for Stage 2 normalization.
-
-Accepts either a raw résumé text file (it is extracted first) or a Stage 1
-extraction JSON file, normalizes the qualifications, and optionally sorts them
-by a professional profile.
-
-Usage:
-    python -m resumelens.normalization --input data/sample_resumes/wednesday_addams.txt --profile full_stack
-    python -m resumelens.normalization --input examples/output/wednesday_addams.json --profile full_stack -o out.json
-"""
-
-from __future__ import annotations
-
-import argparse
-import json
+# Opcional: sirve para probar las etapas 1 y 2 desde la terminal, sin Streamlit.
+#   python -m resumelens.normalization ../data/sample_resumes/wednesday_addams.txt
 import sys
-from pathlib import Path
+import json
 
-from ..extraction import extract_file
-from ..extraction.extractor import ExtractionResult
-from .normalizer import normalize_extraction, save_result
-from .ordering import available_profiles
+from ..extraction import extract_from_file, get_skills
+from .normalizer import normalize
 
+data = extract_from_file(sys.argv[1])
+skills = get_skills(data)
+print("Etapa 1:", skills)
 
-def _load_extraction(path: Path) -> ExtractionResult:
-    """Load an ExtractionResult from a résumé .txt or a Stage 1 .json file."""
-    if path.suffix.lower() == ".json":
-        data = json.loads(path.read_text(encoding="utf-8"))
-        return ExtractionResult(matches={k: list(v) for k, v in data.items()})
-    return extract_file(path)
-
-
-def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(
-        prog="python -m resumelens.normalization",
-        description="Normalize résumé qualifications with finite-state transducers (Stage 2).",
-    )
-    parser.add_argument(
-        "--input", "-i", required=True,
-        help="Résumé text file (.txt) or Stage 1 extraction JSON (.json).",
-    )
-    parser.add_argument(
-        "--profile", "-p", choices=available_profiles(), default=None,
-        help="Profile whose canonical order is used to sort the output.",
-    )
-    parser.add_argument(
-        "--output", "-o",
-        help="Optional path to write the normalized result as JSON.",
-    )
-    args = parser.parse_args(argv)
-
-    extraction = _load_extraction(Path(args.input))
-    result = normalize_extraction(extraction, profile=args.profile)
-
-    if args.output:
-        destination = save_result(result, args.output)
-        print(f"Normalized qualifications written to {destination}")
-    else:
-        json.dump(result.to_dict(), sys.stdout, indent=2, ensure_ascii=False)
-        sys.stdout.write("\n")
-    return 0
-
-
-if __name__ == "__main__":
-    raise SystemExit(main())
+result = normalize(skills)
+print(json.dumps(result, indent=2, ensure_ascii=False))

@@ -1,34 +1,33 @@
 digraph {
-PYTORCH_11 [is_start=False, is_final=False, peripheries=1, label="PYTORCH_11"];
-PYTORCH_4 [is_start=False, is_final=False, peripheries=1, label="PYTORCH_4"];
-PYTORCH_12 [is_start=False, is_final=False, peripheries=1, label="PYTORCH_12"];
-q0 [is_start=True, is_final=False, peripheries=1, label=q0];
-starting_q0 [label="", shape=None, height=0.0, width=0.0];
-PYTORCH_3 [is_start=False, is_final=False, peripheries=1, label="PYTORCH_3"];
-PYTORCH_8 [is_start=False, is_final=False, peripheries=1, label="PYTORCH_8"];
-qf [is_start=False, is_final=True, peripheries=2, label=qf];
-PYTORCH_9 [is_start=False, is_final=False, peripheries=1, label="PYTORCH_9"];
-PYTORCH_2 [is_start=False, is_final=False, peripheries=1, label="PYTORCH_2"];
-PYTORCH_1 [is_start=False, is_final=False, peripheries=1, label="PYTORCH_1"];
-PYTORCH_7 [is_start=False, is_final=False, peripheries=1, label="PYTORCH_7"];
-PYTORCH_0 [is_start=False, is_final=False, peripheries=1, label="PYTORCH_0"];
-PYTORCH_5 [is_start=False, is_final=False, peripheries=1, label="PYTORCH_5"];
-PYTORCH_10 [is_start=False, is_final=False, peripheries=1, label="PYTORCH_10"];
-PYTORCH_13 [is_start=False, is_final=False, peripheries=1, label="PYTORCH_13"];
-PYTORCH_11 -> PYTORCH_12 [key=0, label="\"r\" -> []"];
-PYTORCH_4 -> PYTORCH_5 [key=0, label="\"c\" -> []"];
-PYTORCH_12 -> PYTORCH_13 [key=0, label="\"c\" -> []"];
-q0 -> PYTORCH_0 [key=0, label="\"p\" -> [\"PYTORCH\"]"];
-q0 -> PYTORCH_7 [key=0, label="\"p\" -> [\"PYTORCH\"]"];
-starting_q0 -> q0 [key=0];
-PYTORCH_3 -> PYTORCH_4 [key=0, label="\"r\" -> []"];
-PYTORCH_8 -> PYTORCH_9 [key=0, label="\" \" -> []"];
-PYTORCH_9 -> PYTORCH_10 [key=0, label="\"t\" -> []"];
-PYTORCH_2 -> PYTORCH_3 [key=0, label="\"o\" -> []"];
-PYTORCH_1 -> PYTORCH_2 [key=0, label="\"t\" -> []"];
-PYTORCH_7 -> PYTORCH_8 [key=0, label="\"y\" -> []"];
-PYTORCH_0 -> PYTORCH_1 [key=0, label="\"y\" -> []"];
-PYTORCH_5 -> qf [key=0, label="\"h\" -> []"];
-PYTORCH_10 -> PYTORCH_11 [key=0, label="\"o\" -> []"];
-PYTORCH_13 -> qf [key=0, label="\"h\" -> []"];
+	rankdir=LR
+	node [fontname=Helvetica]
+	__init__ [label="" height=0 shape=none width=0]
+	__init__ -> q0
+	q0 [fillcolor=lightblue shape=circle style=filled]
+	q1 [shape=circle]
+	q0 -> q1 [label=" p / PYTORCH "]
+	q2 [shape=circle]
+	q1 -> q2 [label=" y / ε "]
+	q3 [shape=circle]
+	q2 -> q3 [label=" t / ε "]
+	q4 [shape=circle]
+	q3 -> q4 [label=" o / ε "]
+	q5 [shape=circle]
+	q4 -> q5 [label=" r / ε "]
+	q6 [shape=circle]
+	q5 -> q6 [label=" c / ε "]
+	q7 [shape=doublecircle]
+	q6 -> q7 [label=" h / ε "]
+	q8 [shape=circle]
+	q2 -> q8 [label=" ␣ / ε "]
+	q9 [shape=circle]
+	q8 -> q9 [label=" t / ε "]
+	q10 [shape=circle]
+	q9 -> q10 [label=" o / ε "]
+	q11 [shape=circle]
+	q10 -> q11 [label=" r / ε "]
+	q12 [shape=circle]
+	q11 -> q12 [label=" c / ε "]
+	q13 [shape=doublecircle]
+	q12 -> q13 [label=" h / ε "]
 }

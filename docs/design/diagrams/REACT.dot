@@ -1,43 +1,27 @@
 digraph {
-REACT_7 [is_start=False, is_final=False, peripheries=1, label="REACT_7"];
-REACT_3 [is_start=False, is_final=False, peripheries=1, label="REACT_3"];
-REACT_18 [is_start=False, is_final=False, peripheries=1, label="REACT_18"];
-REACT_1 [is_start=False, is_final=False, peripheries=1, label="REACT_1"];
-REACT_10 [is_start=False, is_final=False, peripheries=1, label="REACT_10"];
-REACT_0 [is_start=False, is_final=False, peripheries=1, label="REACT_0"];
-REACT_8 [is_start=False, is_final=False, peripheries=1, label="REACT_8"];
-REACT_14 [is_start=False, is_final=False, peripheries=1, label="REACT_14"];
-REACT_5 [is_start=False, is_final=False, peripheries=1, label="REACT_5"];
-REACT_11 [is_start=False, is_final=False, peripheries=1, label="REACT_11"];
-REACT_2 [is_start=False, is_final=False, peripheries=1, label="REACT_2"];
-REACT_9 [is_start=False, is_final=False, peripheries=1, label="REACT_9"];
-REACT_17 [is_start=False, is_final=False, peripheries=1, label="REACT_17"];
-q0 [is_start=True, is_final=False, peripheries=1, label=q0];
-starting_q0 [label="", shape=None, height=0.0, width=0.0];
-REACT_6 [is_start=False, is_final=False, peripheries=1, label="REACT_6"];
-REACT_13 [is_start=False, is_final=False, peripheries=1, label="REACT_13"];
-REACT_16 [is_start=False, is_final=False, peripheries=1, label="REACT_16"];
-qf [is_start=False, is_final=True, peripheries=2, label=qf];
-REACT_15 [is_start=False, is_final=False, peripheries=1, label="REACT_15"];
-REACT_7 -> REACT_8 [key=0, label="\"c\" -> []"];
-REACT_3 -> qf [key=0, label="\"t\" -> []"];
-REACT_18 -> qf [key=0, label="\"s\" -> []"];
-REACT_1 -> REACT_2 [key=0, label="\"a\" -> []"];
-REACT_10 -> REACT_11 [key=0, label="\"j\" -> []"];
-REACT_0 -> REACT_1 [key=0, label="\"e\" -> []"];
-REACT_8 -> REACT_9 [key=0, label="\"t\" -> []"];
-REACT_14 -> REACT_15 [key=0, label="\"a\" -> []"];
-REACT_5 -> REACT_6 [key=0, label="\"e\" -> []"];
-REACT_11 -> qf [key=0, label="\"s\" -> []"];
-REACT_2 -> REACT_3 [key=0, label="\"c\" -> []"];
-REACT_9 -> REACT_10 [key=0, label="\".\" -> []"];
-REACT_17 -> REACT_18 [key=0, label="\"j\" -> []"];
-q0 -> REACT_0 [key=0, label="\"r\" -> [\"REACT\"]"];
-q0 -> REACT_5 [key=0, label="\"r\" -> [\"REACT\"]"];
-q0 -> REACT_13 [key=0, label="\"r\" -> [\"REACT\"]"];
-starting_q0 -> q0 [key=0];
-REACT_6 -> REACT_7 [key=0, label="\"a\" -> []"];
-REACT_13 -> REACT_14 [key=0, label="\"e\" -> []"];
-REACT_16 -> REACT_17 [key=0, label="\"t\" -> []"];
-REACT_15 -> REACT_16 [key=0, label="\"c\" -> []"];
+	rankdir=LR
+	node [fontname=Helvetica]
+	__init__ [label="" height=0 shape=none width=0]
+	__init__ -> q0
+	q0 [fillcolor=lightblue shape=circle style=filled]
+	q1 [shape=circle]
+	q0 -> q1 [label=" r / REACT "]
+	q2 [shape=circle]
+	q1 -> q2 [label=" e / ε "]
+	q3 [shape=circle]
+	q2 -> q3 [label=" a / ε "]
+	q4 [shape=circle]
+	q3 -> q4 [label=" c / ε "]
+	q5 [shape=doublecircle]
+	q4 -> q5 [label=" t / ε "]
+	q6 [shape=circle]
+	q5 -> q6 [label=" . / ε "]
+	q7 [shape=circle]
+	q6 -> q7 [label=" j / ε "]
+	q8 [shape=doublecircle]
+	q7 -> q8 [label=" s / ε "]
+	q9 [shape=circle]
+	q5 -> q9 [label=" j / ε "]
+	q10 [shape=doublecircle]
+	q9 -> q10 [label=" s / ε "]
 }

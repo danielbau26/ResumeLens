@@ -10,6 +10,7 @@ requires-python = ">=3.10"
 dependencies = [
     "pyformlang",
     "textX",
+    "graphviz",
 ]
 
 [project.optional-dependencies]

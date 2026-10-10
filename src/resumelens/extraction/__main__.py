@@ -1,42 +1,13 @@
-"""Command-line entry point for Stage 1 extraction.
-
-Usage:
-    python -m resumelens.extraction --input data/sample_resumes/wednesday.txt
-    python -m resumelens.extraction --input <file> --output out.json
-"""
-
-from __future__ import annotations
-
-import argparse
-import json
+# Optional: lets you test stage 1 from the terminal, without Streamlit.
+#   python -m resumelens.extraction ../data/sample_resumes/wednesday_addams.txt
+# It is not used for deployment (Streamlit only runs app.py).
 import sys
+import json
 
-from .extractor import extract_file, save_result
+from .extractor import extract_from_file, get_skills
 
-
-def main(argv: list[str] | None = None) -> int:
-    parser = argparse.ArgumentParser(
-        prog="python -m resumelens.extraction",
-        description="Extract candidate information from a résumé (Stage 1).",
-    )
-    parser.add_argument("--input", "-i", required=True, help="Path to the résumé text file.")
-    parser.add_argument(
-        "--output",
-        "-o",
-        help="Optional path to write the extracted information as JSON.",
-    )
-    args = parser.parse_args(argv)
-
-    result = extract_file(args.input)
-
-    if args.output:
-        destination = save_result(result, args.output)
-        print(f"Extracted information written to {destination}")
-    else:
-        json.dump(result.to_dict(), sys.stdout, indent=2, ensure_ascii=False)
-        sys.stdout.write("\n")
-    return 0
-
-
-if __name__ == "__main__":
-    raise SystemExit(main())
+# sys.argv[1] is the file path typed in the terminal
+data = extract_from_file(sys.argv[1])
+# json.dumps turns the dictionary into JSON-formatted text to print it
+print(json.dumps(data, indent=2, ensure_ascii=False))
+print("\nFor stage 2:", get_skills(data))

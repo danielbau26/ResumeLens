@@ -7,18 +7,21 @@ Document the design of each module in the pipeline: functions, inputs, and outpu
 **Files:** `patterns.py` (regex catalogue), `extractor.py` (driver), `__main__.py` (CLI).
 
 Data structures:
-- `PatternSpec(name, description, regex)` — a named regex with its documented language.
-- `ExtractionResult(matches: dict[str, list[str]])` — category → ordered, de-duplicated matches.
+- Regexes are plain string constants (`EMAIL_REGEX`, `LANGUAGES_REGEX`, …) and `PATTERNS` is a
+  `dict[str, str]` mapping each category to its regex.
+- The extraction result is a plain `dict[str, list[str]]` (category → matches) plus a `"name"` entry.
+  Categories: `emails, phones, urls, programming_languages, frameworks_libraries, databases,
+  tools_technologies, academic_qualifications, professional_experience, other_qualifications`.
 
 | Function | Input | Output | Description |
 |---|---|---|---|
-| `extract(text, patterns=None)` | résumé text `str` | `ExtractionResult` | Applies the catalogue in order; each match claims its span so later patterns can't overlap it; de-duplicates per category (case-insensitive, order preserving). |
-| `extract_file(path, patterns=None)` | path to a `.txt` résumé | `ExtractionResult` | Reads UTF-8 text and calls `extract`. |
-| `save_result(result, path)` | `ExtractionResult`, output path | written `Path` | Persists the result as pretty JSON ("keep the extracted information in a file"). |
-| `ExtractionResult.qualifications()` | — | `list[str]` | Flattens the technical-qualification categories (programming languages, frameworks/libraries, databases, tools) into the input for Stage 2. |
-| `ExtractionResult.get(category)` | category name | `list[str]` | Matches for one category (empty if none). |
+| `extract_info(text)` | résumé text `str` | `dict` | Applies every regex; blanks emails/URLs before searching the other categories (so a host like `github.com` is not re-read as a tool); de-duplicates per category (case-insensitive, order preserving). Adds the `name` (first non-empty line). |
+| `get_name(text)` | résumé text `str` | `str` | The first non-empty line (used by Stage 4). |
+| `get_skills(data)` | extraction `dict` | `list[str]` | Flattens the 4 technical-qualification categories (languages, frameworks/libraries, databases, tools) — the input for Stage 2. |
+| `extract_from_file(path)` | path to a `.txt` résumé | `dict` | Reads UTF-8 text and calls `extract_info`. |
+| `save_result(data, path)` | extraction `dict`, output path | — | Persists the dict as pretty JSON ("keep the extracted information in a file"). |
 
-**CLI:** `python -m resumelens.extraction --input <file> [--output <json>]`.
+**CLI:** `python -m resumelens.extraction <resume.txt>` (prints the JSON dict and the Stage 2 skills list).
 
 ## Stage 2 — Normalization (`src/resumelens/normalization/`)
 
@@ -26,23 +29,27 @@ Data structures:
 (profile order + sort), `normalizer.py` (orchestrator), `__main__.py` (CLI).
 
 Data structures:
-- `TransductionRule(canonical, variants, category)` — a canonical form and the surface variants it accepts.
-- `NormalizationResult(canonical, mapping, unrecognized, profile)` — canonical output plus a
-  surface→canonical trace and the tokens no transducer recognized.
+- `VARIANTS` — a plain `dict[str, list[str]]` mapping each canonical form to its (lowercase) surface
+  variants (e.g. `"JAVASCRIPT": ["js", "javascript"]`). One entry = one transducer.
+- `PROFILE_ORDER` — a `dict[str, list[str]]` giving the canonical order per profile.
+- The normalization result is a plain `dict`:
+  `{"canonical", "translations", "unrecognized", "by_profile"}` — `translations` is a
+  `{surface: canonical}` map and `by_profile` is `{profile: [sorted canonical skills]}`. This is easy
+  to show in Streamlit (`st.json`, `st.dataframe`).
 
 | Function | Input | Output | Description |
 |---|---|---|---|
-| `build_transducer(rule)` | `TransductionRule` | `FST` | Character-level pyformlang FST accepting the (case-folded) variants and emitting the canonical form. |
-| `build_all()` | — | `dict[str, FST]` | One FST per canonical form, keyed by canonical symbol. |
-| `combined_transducer()` | — | `FST` | Union of all per-rule FSTs (the single-transducer view). |
-| `normalize_token(token)` | `str` | `str \| None` | Canonical form of a surface token, or `None` if unrecognized. |
-| `export_diagrams(dest, canonicals=None)` | dir, optional subset | written `Path`s | Graphviz `.dot` per transducer (`.png` too if `dot` is installed). |
-| `sort_qualifications(canonical, profile)` | canonical list, profile id | `list[str]` | Reorders into the profile's canonical order; unordered symbols appended last. |
-| `normalize(tokens, profile=None)` | surface tokens | `NormalizationResult` | Transduce → dedup → (sort). Keeps a mapping trace and unrecognized bucket. |
-| `normalize_extraction(result, profile=None)` | `ExtractionResult` | `NormalizationResult` | Convenience over `result.qualifications()`. |
-| `save_result(result, path)` | result, path | written `Path` | Persists the result as JSON. |
+| `build_transducer(canonical)` | canonical `str` | `FST` | Deterministic character-level pyformlang FST that reads a variant and emits the canonical form. Variants that share a prefix share states. |
+| `translate(word)` | `str` | `str \| None` | Lower-cases the word and runs it through each transducer; returns the canonical form or `None`. |
+| `formal_definition(canonical)` | canonical `str` | `dict` | The complete 7-tuple `{Q, Σ, Γ, δ, ω, q0, F}` of that transducer. |
+| `draw_transducer(canonical)` | canonical `str` | `graphviz.Digraph` | The transducer's diagram (graphical representation). |
+| `save_diagrams(folder)` | folder path | — | Writes a `.dot` diagram per transducer. |
+| `sort_skills(canonical, profile)` | canonical list, profile id | `list[str]` | Keeps only the skills present in the profile order, in that order (others are not sent to that profile). |
+| `sort_for_all_profiles(canonical)` | canonical list | `dict` | `{profile: sort_skills(...)}` for every profile. |
+| `normalize(skills)` | surface skills `list[str]` | `dict` | Translate → dedup → sort for every profile. Returns `{canonical, translations, unrecognized, by_profile}`. |
+| `save_result(result, path)` | result `dict`, path | — | Persists the result dict as JSON. |
 
-**CLI:** `python -m resumelens.normalization --input <resume.txt\|extraction.json> [--profile full_stack\|machine_learning\|ai_engineer\|cloud_engineer] [--output <json>]`.
+**CLI:** `python -m resumelens.normalization <resume.txt>` (prints the Stage 1 skills and the normalized result as JSON).
 
 ## Stage 3 — Recognition (`src/resumelens/recognition/`)
 

@@ -1,141 +1,138 @@
-"""Stage 2 finite-state transducers, implemented with pyformlang.
-
-Each :class:`~resumelens.normalization.transformations.TransductionRule` is
-compiled into a **character-level** finite-state transducer (FST):
-
-* the input alphabet ``Σ`` is the set of characters of the accepted variants
-  (matching is done on a case-folded token, so ``JS`` and ``js`` share paths);
-* the output alphabet ``Γ`` is the singleton canonical symbol, e.g.
-  ``{JAVASCRIPT}``;
-* every variant is a path of states from the start state ``q0`` that converges
-  on a single accepting state; the canonical symbol is emitted on the first
-  transition (``ω``) and the empty string on the rest.
-
-Thus running :meth:`pyformlang.fst.FST.translate` on the characters of any
-accepted variant yields the canonical form, and any other word yields nothing.
-A :func:`combined_transducer` unions all per-rule FSTs into the single
-transducer view, and :func:`export_diagrams` renders the graphical
-representation required by the assignment.
-"""
-
-from __future__ import annotations
-
-import shutil
-import subprocess
-from pathlib import Path
-
+# Etapa 2 - Transductores de estado finito con pyformlang.
+#
+# Un transductor es como un automata, pero ademas de leer, ESCRIBE una salida.
+# Aqui cada transductor lee una palabra letra por letra y escribe su forma canonica.
+#
+# Ejemplo: transductor de JAVASCRIPT con las variantes "js" y "javascript"
+#
+#   q0 --j/JAVASCRIPT--> q1 --s/ε--> q2 (final)          lee "js"
+#                        q1 --a/ε--> q3 --v/ε--> ... --t/ε--> q11 (final)   lee "javascript"
+#
+#   - En la PRIMERA letra escribe JAVASCRIPT; en las demas no escribe nada (ε).
+#   - Si dos variantes empiezan igual ("js" y "javascript" empiezan con 'j'),
+#     comparten ese pedazo del camino. Por eso desde cada estado hay maximo una
+#     transicion por letra: el transductor es DETERMINISTA.
+#   - Si la palabra no es una variante, se queda sin camino o no termina en un
+#     estado final, y translate() no devuelve nada.
+import graphviz
 from pyformlang.fst import FST
 
-from .transformations import RULES, TransductionRule
+from .transformations import VARIANTS
+
+# recive la forma canonica ("REACT") y sus variantes. crea las listas vacias
+def build_transitions(canonical, variants):
+    transitions = [] #lugar donde van las tuplas (desde, letra entrada, hacia, [salida])
+    finals = [] #los estados finales
+    paths = {} # un diccionario que recuerda que flechas ya existen. guarda (estado, letra) -> estado al que llega
+
+    count = 1 # contador para nombrar los estados nuevos, arranca en 1 porque q0 ya existe
+
+    #recorre cada variante y cada una empieza en q0.
+    for word in variants:
+        current = "q0"
+        #recorre la palabra en variante letra por letra. enumerate da la posicion y la letra (i, letter)
+        # para “react” da (0, "r"), (1, "e")
+        for i, letter in enumerate(word):
+            # si desde el estado actual ya existe una flecha con esa letra (en path donde guardamos las felchas)
+            #solo avanza sin crear nada
+            # Esto pasa con “react.js”: las letras r-e-a-c-t ya las creó “react”, así que las reutiliza.
+            if (current, letter) in paths:
+                current = paths[(current, letter)]
+            else:
+            # si la flecha no existe la crea:
+            ##arma el nombre del estado nuevo y sube el contador
+                new_state = "q" + str(count)
+                count += 1
+                # decide la salida: si es la primera letra, escribe la canonica
+                output = canonical if i == 0 else ""
+                # y le meto la tupla ("q0", "r", "q1", ["REACT"])
+                transitions.append((current, letter, new_state, [output]))
+                #guardamos en paths que ese camino ya existe. y avanza al estado nuevo
+                paths[(current, letter)] = new_state
+                current = new_state
+        # cuando termina la palabra, el estado donde quedo es final
+        if current not in finals:
+            finals.append(current)
+    #al final devuelve las transiciones (la tupla) y los finales
+    return transitions, finals
+
+#crea el transductor. saca las variantes de esa forma canonica de la tabla y arma las transiciones
+# crea el FST vacio, le mete la transiciones, marca q0 como inicial y marca cada estado final
+# devuelve el transductor listo
+def build_transducer(canonical):
+    transitions, finals = build_transitions(canonical, VARIANTS[canonical])
+    transducer = FST()
+    transducer.add_transitions(transitions)
+    transducer.add_start_state("q0")
+    for state in finals:
+        transducer.add_final_state(state)
+    return transducer
+
+# crea todos los transductores de una
+TRANSDUCERS = {canonical: build_transducer(canonical) for canonical in VARIANTS}
 
 
-def _fold(token: str) -> str:
-    """Case-normalize a token so casing variants collapse onto shared paths."""
-    return token.casefold()
-
-
-def build_transducer(rule: TransductionRule) -> FST:
-    """Build the character-level FST for a single transformation ``rule``.
-
-    The FST accepts exactly the (case-folded) variants of ``rule`` and outputs
-    ``rule.canonical`` once per accepted word.
-    """
-    fst = FST()
-    start = "q0"
-    accept = "qf"
-    fst.add_start_state(start)
-    fst.add_final_state(accept)
-
-    counter = 0
-    for variant in rule.variants:
-        symbols = list(_fold(variant))
-        if not symbols:
-            continue
-        # Walk the characters, creating fresh intermediate states per variant so
-        # that branches only merge at the shared accepting state.
-        current = start
-        for index, symbol in enumerate(symbols):
-            is_last = index == len(symbols) - 1
-            target = accept if is_last else f"{rule.canonical}_{counter}"
-            counter += 1
-            # Emit the canonical symbol on the first transition, nothing after.
-            output = [rule.canonical] if index == 0 else []
-            fst.add_transition(current, symbol, target, output)
-            current = target
-    return fst
-
-
-def build_all() -> dict[str, FST]:
-    """Build one FST per canonical form, keyed by the canonical symbol."""
-    return {rule.canonical: build_transducer(rule) for rule in RULES}
-
-
-def combined_transducer() -> FST:
-    """Union every per-rule FST into a single transducer.
-
-    This is the "one transducer" view: it accepts the variants of *all* rules
-    and outputs the corresponding canonical symbol for each.
-    """
-    fst: FST | None = None
-    for rule in RULES:
-        current = build_transducer(rule)
-        fst = current if fst is None else fst.union(current)
-    return fst if fst is not None else FST()
-
-
-# A cached per-rule map so token normalization does not rebuild FSTs each call.
-_TRANSDUCERS: dict[str, FST] = {}
-
-
-def normalize_token(token: str) -> str | None:
-    """Return the canonical form of ``token`` or ``None`` if unrecognized.
-
-    Runs the token's characters through each rule's FST and returns the first
-    canonical symbol produced. Because variant sets are disjoint, at most one
-    rule accepts a given token.
-    """
-    if not _TRANSDUCERS:
-        _TRANSDUCERS.update(build_all())
-    symbols = list(_fold(token.strip()))
-    for canonical, fst in _TRANSDUCERS.items():
-        for output in fst.translate(symbols):
-            if output:
-                return output[0]
+def translate(word):
+    word = " ".join(word.split()).lower()
+    for canonical in TRANSDUCERS:
+        transducer = TRANSDUCERS[canonical]
+        results = list(map(lambda x: "".join(x), transducer.translate(word)))
+        if results:
+            return results[0]
     return None
 
 
-def export_diagrams(dest_dir: str | Path, canonicals: list[str] | None = None) -> list[Path]:
-    """Write a Graphviz diagram per transducer into ``dest_dir``.
+def formal_definition(canonical):
+    transitions, finals = build_transitions(canonical, VARIANTS[canonical])
 
-    A ``.dot`` file is always written (via :meth:`FST.write_as_dot`); a ``.png``
-    is additionally rendered when the Graphviz ``dot`` binary is available.
+    states = ["q0"]
+    for start, letter, end, output in transitions:
+        if end not in states:
+            states.append(end)
 
-    Args:
-        dest_dir: Output directory (created if missing).
-        canonicals: Optional subset of canonical names to export; defaults to
-            all rules.
+    alphabet = []
+    for start, letter, end, output in transitions:
+        if letter not in alphabet:
+            alphabet.append(letter)
 
-    Returns:
-        The list of files written.
-    """
-    destination = Path(dest_dir)
-    destination.mkdir(parents=True, exist_ok=True)
-    transducers = build_all()
-    if canonicals is not None:
-        transducers = {name: transducers[name] for name in canonicals if name in transducers}
+    delta = []
+    omega = []
+    for start, letter, end, output in transitions:
+        delta.append(f"δ({start}, '{letter}') = {end}")
+        omega.append(f"ω({start}, '{letter}') = {output[0] or 'ε'}")
 
-    dot_binary = shutil.which("dot")
-    written: list[Path] = []
-    for canonical, fst in transducers.items():
-        dot_path = destination / f"{canonical}.dot"
-        fst.write_as_dot(str(dot_path))
-        written.append(dot_path)
-        if dot_binary:
-            png_path = destination / f"{canonical}.png"
-            subprocess.run(
-                [dot_binary, "-Tpng", str(dot_path), "-o", str(png_path)],
-                check=False,
-            )
-            if png_path.exists():
-                written.append(png_path)
-    return written
+    return {
+        "Q": states,
+        "Σ": alphabet,
+        "Γ": [canonical],
+        "δ": delta,
+        "ω": omega,
+        "q0": "q0",
+        "F": finals,
+    }
+
+
+def draw_transducer(canonical):
+    transitions, finals = build_transitions(canonical, VARIANTS[canonical])
+
+    dot = graphviz.Digraph(engine="dot")
+    dot.attr(rankdir="LR")
+    dot.attr("node", fontname="Helvetica")
+
+    dot.node("__init__", shape="none", label="", width="0", height="0")
+    dot.edge("__init__", "q0")
+
+    dot.node("q0", shape="circle", style="filled", fillcolor="lightblue")
+    for start, letter, end, output in transitions:
+        shape = "doublecircle" if end in finals else "circle"
+        dot.node(end, shape=shape)
+        label = "␣" if letter == " " else letter
+        dot.edge(start, end, label=f" {label} / {output[0] or 'ε'} ")
+
+    return dot
+
+
+def save_diagrams(folder):
+    for canonical in VARIANTS:
+        with open(f"{folder}/{canonical}.dot", "w", encoding="utf-8") as file:
+            file.write(draw_transducer(canonical).source)
