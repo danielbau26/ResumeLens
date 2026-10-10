@@ -108,7 +108,20 @@ def test_sort_requires_known_profile():
     with pytest.raises(KeyError):
         sort_skills(["JAVASCRIPT"], "unknown_profile")
 
-
+def test_every_stage1_skill_is_recognized():
+    """Every skill that Stage 1 can extract must have a variant in Stage 2."""
+    text = (
+        "JavaScript, TypeScript, Python, Java, C++, C#, Golang, Ruby, PHP, Kotlin, "
+        "Swift, Rust, Scala, Bash, React.js, Angular, Vue.js, Node, Express, Django, "
+        "Flask, FastAPI, Spring Boot, Pandas, NumPy, Scikit-learn, Tensor Flow, "
+        "Py Torch, Keras, PySpark, Hugging Face, PostgreSQL, MySQL, SQLite, MongoDB, "
+        "Redis, Oracle, NoSQL, GitHub, GitLab, Git, Docker, K8s, Helm, Jenkins, "
+        "Terraform, Ansible, AWS, Azure, GCP, REST APIs, GraphQL, Linux"
+    )
+    skills = get_skills(extract_from_file_text(text))
+    result = normalize(skills)
+    assert result["unrecognized"] == []
+    
 def test_ml_sample_end_to_end():
     """Mary Jane Watson résumé normalizes to the ML canonical sequence."""
     data_dir = Path(__file__).resolve().parents[1] / "data" / "sample_resumes"

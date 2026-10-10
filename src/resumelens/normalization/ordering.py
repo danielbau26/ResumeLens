@@ -9,6 +9,7 @@
 # su lista. Por ejemplo, si alguien tiene React, eso no le sirve al automata de
 # Cloud Engineer, entonces no se le manda. Asi los automatas son mas sencillos.
 
+# Diccionario con el nombre de cada perfil y su lista de habilidades en orden que define el perfil
 PROFILE_ORDER = {
     "full_stack": [
         "JAVASCRIPT", "TYPESCRIPT", "REACT", "ANGULAR", "VUE",
@@ -45,16 +46,21 @@ PROFILE_ORDER = {
     ],
 }
 
-
+# saca la lista del perfil no la del candidato
 def sort_skills(canonical_skills, profile):
     order = PROFILE_ORDER[profile]
     sorted_skills = []
+    # y la reccore
     for skill in order:
+        # por cada habilidad, revisa si el candidato la tiene, si si la agrega
+        # asi el resultado queda en el orden del peril y lo que el candidato tiene
+        # pero no esta en el perfil queda por fuera. si el perfil que pasa el candidato7
+        # no esta en mi lista de perfiles, pues no encuentra por esa clave, KeyError.
         if skill in canonical_skills:
             sorted_skills.append(skill)
     return sorted_skills
 
-
+# hace lo mismo pero para los 4  perfiles y devuelve {"full_stack": [...], "machine_learning": [...], ...}.}
 def sort_for_all_profiles(canonical_skills):
     result = {}
     for profile in PROFILE_ORDER:

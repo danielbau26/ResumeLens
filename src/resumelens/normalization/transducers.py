@@ -35,7 +35,7 @@ def build_transitions(canonical, variants):
         for i, letter in enumerate(word):
             # si desde el estado actual ya existe una flecha con esa letra (en path donde guardamos las felchas)
             #solo avanza sin crear nada
-            # Esto pasa con “react.js”: las letras r-e-a-c-t ya las creó “react”, así que las reutiliza.
+            # Esto pasa con “react.js”: las letras r-e-a-c-t ya las creó “react” (otra variante), así que las reutiliza.
             if (current, letter) in paths:
                 current = paths[(current, letter)]
             else:
@@ -44,7 +44,10 @@ def build_transitions(canonical, variants):
                 new_state = "q" + str(count)
                 count += 1
                 # decide la salida: si es la primera letra, escribe la canonica
-                output = canonical if i == 0 else ""
+                if i == 0:
+                    output = canonical    # primera letra → escribe "REACT"
+                else:
+                    output = ""           # las demás → no escribe nada
                 # y le meto la tupla ("q0", "r", "q1", ["REACT"])
                 transitions.append((current, letter, new_state, [output]))
                 #guardamos en paths que ese camino ya existe. y avanza al estado nuevo
@@ -69,20 +72,38 @@ def build_transducer(canonical):
     return transducer
 
 # crea todos los transductores de una
-TRANSDUCERS = {canonical: build_transducer(canonical) for canonical in VARIANTS}
+#for canonical in VARIANTS: recorre las claves de la tabla: "JAVASCRIPT", "TYPESCRIPT", "REACT"...
+#TRANSDUCERS[canonical] = build_transducer(canonical) crea el transductor de esa forma canónica y
+# lo guarda con su nombre como clave. Al final queda {"JAVASCRIPT": FST, "TYPESCRIPT": FST, "REACT": FST, ...}.
+TRANSDUCERS = {}
+for canonical in VARIANTS:
+    TRANSDUCERS[canonical] = build_transducer(canonical)
 
-
+#traduce una palabra, recibe por eje: react.js y devuelve su forma canonica
 def translate(word):
+    #limpia los espacios y pasa todo a minuscula
     word = " ".join(word.split()).lower()
+    # prueba la palabra en cada transductor
+    # recordemos que dije que quedaba asi donde guardo los transducers. {"JAVASCRIPT": FST, "TYPESCRIPT": FST, "REACT": FST, ...}.
+    # entonces canonical es la clave
     for canonical in TRANSDUCERS:
         transducer = TRANSDUCERS[canonical]
-        results = list(map(lambda x: "".join(x), transducer.translate(word)))
+        results = []
+        #transducer.translate(word) es la función de pyformlang, hace que el transductor lea la palabra letra por letra
+        #Si la acepta (llega a un estado final), devuelve lo que fue escribiendo en el camino,
+        #  como una lista de pedazos: ["REACT", "", "", "", "", "", "", ""]. Si no la acepta, no devuelve nada.
+        #recorre lo que devolvio
+        for output in transducer.translate(word):
+            #join une los pedazos en un solo texto: "REACT" + "" + "" + ... = "REACT", si no lo acepto pues queda vacio
+            results.append("".join(output))
+        # devuelve si lo acepto
         if results:
             return results[0]
     return None
 
-
+#arma la 7 tupla
 def formal_definition(canonical):
+    
     transitions, finals = build_transitions(canonical, VARIANTS[canonical])
 
     states = ["q0"]
@@ -99,12 +120,18 @@ def formal_definition(canonical):
     omega = []
     for start, letter, end, output in transitions:
         delta.append(f"δ({start}, '{letter}') = {end}")
-        omega.append(f"ω({start}, '{letter}') = {output[0] or 'ε'}")
 
+        if output[0] == "":
+            written = "ε"
+        else:
+            written = output[0]
+
+        omega.append(f"ω({start}, '{letter}') = {written}")
+        #"δ(q0, 'r') = q1" y "ω(q0, 'r') = REACT"
     return {
         "Q": states,
         "Σ": alphabet,
-        "Γ": [canonical],
+        "Γ": [canonical], #es solo la canonica porque es la unica salida del transductor
         "δ": delta,
         "ω": omega,
         "q0": "q0",
@@ -114,25 +141,42 @@ def formal_definition(canonical):
 
 def draw_transducer(canonical):
     transitions, finals = build_transitions(canonical, VARIANTS[canonical])
-
+    # crea un dibujo con flechas de izquierda a derecha
     dot = graphviz.Digraph(engine="dot")
     dot.attr(rankdir="LR")
     dot.attr("node", fontname="Helvetica")
 
+    # crea un nodo invisible y una flecha de el a q0, que es la del estado inciial
     dot.node("__init__", shape="none", label="", width="0", height="0")
     dot.edge("__init__", "q0")
-
     dot.node("q0", shape="circle", style="filled", fillcolor="lightblue")
+    #por cada transicion: si el estado es final, lo dibuja con doble circulo
+    # sino con circulo normal.
     for start, letter, end, output in transitions:
-        shape = "doublecircle" if end in finals else "circle"
+        if end in finals:
+            shape = "doublecircle"
+        else:
+            shape = "circle"
         dot.node(end, shape=shape)
-        label = "␣" if letter == " " else letter
-        dot.edge(start, end, label=f" {label} / {output[0] or 'ε'} ")
+        #si la letra es un espacio se cambia por ␣ para que la flecha se vea con letra 
+        if letter == " ":
+            label = "␣"
+        else:
+            label = letter
+
+        if output[0] == "":
+            written = "ε"
+        else:
+            written = output[0]
+        #dibuja la flecha de start a end con la etiqueta
+        dot.edge(start, end, label=f" {label} / {written} ")
 
     return dot
 
 
 def save_diagrams(folder):
+    # por cada forma canonica, crea el archivo REACT.dot por ejemplo y asi con todas
+    # y escribe ahi el texto del dibujo .source es ese texto en formato DOT
     for canonical in VARIANTS:
         with open(f"{folder}/{canonical}.dot", "w", encoding="utf-8") as file:
             file.write(draw_transducer(canonical).source)

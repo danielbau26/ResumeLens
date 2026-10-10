@@ -116,7 +116,16 @@ def test_extract_from_file_and_save_roundtrip(tmp_path: Path):
     assert loaded["programming_languages"] == ["JS"]
     assert loaded["frameworks_libraries"] == ["React.js", "NodeJS"]
 
+def test_year_range_is_not_a_phone():
+    """A date range like 2019-2023 must not be detected as a phone number."""
+    data = extract_info("Developer at Acme, 2019-2023. Call +57 300 123 4567")
+    assert data["phones"] == ["+57 300 123 4567"]
 
+
+def test_english_word_go_is_not_a_language():
+    """The verb 'go' must not be extracted as the Go language."""
+    data = extract_info("I go to work every day. Skills: Python")
+    assert data["programming_languages"] == ["Python"]
 def test_sample_resume_files_present():
     """The repository ships the two assignment sample résumés."""
     data_dir = Path(__file__).resolve().parents[1] / "data" / "sample_resumes"

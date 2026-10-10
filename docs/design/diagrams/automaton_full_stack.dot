@@ -1,0 +1,53 @@
+digraph {
+	rankdir=LR
+	node [fontname=Helvetica]
+	edge [fontname=Helvetica fontsize=10]
+	__init__ [label="" height=0 shape=none width=0]
+	__init__ -> q0
+	q0 [fillcolor=lightblue shape=circle style=filled]
+	q1 [shape=circle]
+	q2 [shape=circle]
+	q3 [shape=circle]
+	q4 [shape=circle]
+	q5 [shape=doublecircle]
+	q0 -> q1 [label="JAVASCRIPT
+TYPESCRIPT"]
+	q1 -> q1 [label="JAVASCRIPT
+TYPESCRIPT"]
+	q1 -> q2 [label="REACT
+ANGULAR
+VUE"]
+	q2 -> q2 [label="REACT
+ANGULAR
+VUE"]
+	q2 -> q3 [label="NODE_JS
+DJANGO
+SPRING_BOOT
+EXPRESS
+FASTAPI
+FLASK"]
+	q3 -> q3 [label="NODE_JS
+DJANGO
+SPRING_BOOT
+EXPRESS
+FASTAPI
+FLASK"]
+	q3 -> q4 [label="POSTGRESQL
+MYSQL
+MONGODB
+SQL
+NOSQL"]
+	q4 -> q4 [label="POSTGRESQL
+MYSQL
+MONGODB
+SQL
+NOSQL"]
+	q4 -> q5 [label="GIT
+GITHUB"]
+	q5 -> q5 [label="GIT
+GITHUB
+DOCKER
+KUBERNETES
+REST_API
+GRAPHQL"]
+}
