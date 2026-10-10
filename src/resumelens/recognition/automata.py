@@ -159,3 +159,55 @@ def formal_definition(profile_key):
         "type": kind,
         "justification": justification,
     }
+
+def draw_automaton(profile_key):
+    transitions, final = build_transitions(profile_key)
+    #Si se dibujara una flecha por palabra, de q2 a q3 saldrían 4 flechas encima
+    #  una de otra (SCIKIT_LEARN, TENSORFLOW, PYTORCH, KERAS) y no se entendería nada. 
+    # Por eso agrupa las palabras que van entre las mismas dos casillas. Usa un diccionario donde
+    #  la clave es la pareja (desde, hacia) y el valor es la lista de palabras, 
+    # por ejemplo ("q2", "q3"): ["SCIKIT_LEARN", "TENSORFLOW", "PYTORCH", "KERAS"]. 
+    # Si la pareja todavía no está en el diccionario, crea su lista vacía antes de agregar la palabra.
+    labels = {}
+    for start, symbol, end in transitions:
+        key = (start, end)
+        if key not in labels:
+            labels[key] = []
+        labels[key].append(symbol)
+ 
+    dot = graphviz.Digraph(engine="dot")
+    dot.attr(rankdir="LR")
+    dot.attr("node", fontname="Helvetica")
+    dot.attr("edge", fontname="Helvetica", fontsize="10")
+ 
+    dot.node("__init__", shape="none", label="", width="0", height="0")
+    dot.edge("__init__", "q0")
+
+    groups = PROFILES[profile_key]["groups"]
+    for i in range(len(groups) + 1):
+        state = "q" + str(i)
+        if state == final:
+            shape = "doublecircle"
+        else:
+            shape = "circle"
+        if state == "q0":
+            dot.node(state, shape=shape, style="filled", fillcolor="lightblue")
+        else:
+            dot.node(state, shape=shape)
+    # por cada pareja de estados, dibuja una sola flecha, con todas sus palabras 
+    #una debajo de otra, Las flechas ε salen con la etiqueta ε, y los bucles salen 
+    # como flechas que vuelven a la misma casilla.
+    for key in labels:
+        start = key[0]
+        end = key[1]
+        text = "\n".join(labels[key])
+        dot.edge(start, end, label=text)
+ 
+    return dot
+ 
+#guarda un .dot por perfil, con prefijo automaton_...
+def save_diagrams(folder):
+    for profile_key in PROFILES:
+        with open(f"{folder}/automaton_{profile_key}.dot", "w", encoding="utf-8") as file:
+            file.write(draw_automaton(profile_key).source)
+ 
