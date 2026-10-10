@@ -13,6 +13,6 @@ normalized = normalize(skills)
 results = recognize(normalized["by_profile"])
  
 print(json.dumps(results, indent=2, ensure_ascii=False))
-print("\nPerfiles aceptados:", accepted_profiles(results))
+print("\naccepted profiles:", accepted_profiles(results))
 
 #corre las 3 etapa seguidas para pruebas parciales

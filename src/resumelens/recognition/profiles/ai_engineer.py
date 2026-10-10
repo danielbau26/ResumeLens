@@ -15,5 +15,11 @@ PROFILE = {
         {"name": "Version control", "symbols": ["GIT"], "optional": False},
     ],
     "extras": [],
+    # esta no tiene extras pero
+    #Full Stack y ML tienen todos los pasos con "optional": False.
+    #AI Engineer tiene la base de datos con "optional": True.
+    #Cloud Engineer tiene CI/CD y base de datos con "optional": True.
+
+    #Eso es lo que hace que unos sean DFA y otros ε-NFA.
 }
  

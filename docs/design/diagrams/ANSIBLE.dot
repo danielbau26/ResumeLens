@@ -1,0 +1,21 @@
+digraph {
+	rankdir=LR
+	node [fontname=Helvetica]
+	__init__ [label="" height=0 shape=none width=0]
+	__init__ -> q0
+	q0 [fillcolor=lightblue shape=circle style=filled]
+	q1 [shape=circle]
+	q0 -> q1 [label=" a / ANSIBLE "]
+	q2 [shape=circle]
+	q1 -> q2 [label=" n / ε "]
+	q3 [shape=circle]
+	q2 -> q3 [label=" s / ε "]
+	q4 [shape=circle]
+	q3 -> q4 [label=" i / ε "]
+	q5 [shape=circle]
+	q4 -> q5 [label=" b / ε "]
+	q6 [shape=circle]
+	q5 -> q6 [label=" l / ε "]
+	q7 [shape=doublecircle]
+	q6 -> q7 [label=" e / ε "]
+}
