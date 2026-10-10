@@ -17,8 +17,12 @@ from .automata import accepts
 def recognize(by_profile):
     # crea el diccionario de resultados y recorre los perfiles
     results = {}
+    # da 4 vueltas una por perfil
     for profile_key in PROFILES:
-        
+        # mira si este perfil de la lista de perfiles, esta en la lista
+        # de by_profile (respuesta de la etapa 2) al menos con algo
+        # por cada fila (sequencia (lista interna)), miro si la acepto o no y 
+        # guardo los 4 resultados
         if profile_key in by_profile:
             # saca la lista de ese perfil, si no viene dev lista vacia
             # la lista vacia automaticamente la rechaza y no se cae el programa
@@ -39,3 +43,18 @@ def recognize(by_profile):
             "result": result,
         }
     return results
+
+# recorre los resultados y devuelve solo las claves de los perfiles acceptados
+# la clasificacion del cv entre los 4 perfiles
+def accepted_profiles(results):
+    accepted = []
+    for profile_key in results:
+        if results[profile_key]["result"] == "ACCEPTED":
+            accepted.append(profile_key)
+    return accepted
+ 
+# guarda ese resultado en un json 
+def save_result(results, path):
+    with open(path, "w", encoding="utf-8") as file:
+        json.dump(results, file, indent=2, ensure_ascii=False)
+ 
