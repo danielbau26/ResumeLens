@@ -1,0 +1,33 @@
+{
+  "profile": "full_stack",
+  "canonical": [
+    "JAVASCRIPT",
+    "REACT",
+    "NODE_JS",
+    "POSTGRESQL",
+    "GIT"
+  ],
+  "mapping": [
+    [
+      "JS",
+      "JAVASCRIPT"
+    ],
+    [
+      "React.js",
+      "REACT"
+    ],
+    [
+      "NodeJS",
+      "NODE_JS"
+    ],
+    [
+      "Postgres",
+      "POSTGRESQL"
+    ],
+    [
+      "Git",
+      "GIT"
+    ]
+  ],
+  "unrecognized": []
+}

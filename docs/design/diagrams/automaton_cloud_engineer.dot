@@ -1,0 +1,57 @@
+digraph {
+	rankdir=LR
+	node [fontname=Helvetica]
+	edge [fontname=Helvetica fontsize=10]
+	__init__ [label="" height=0 shape=none width=0]
+	__init__ -> q0
+	q0 [fillcolor=lightblue shape=circle style=filled]
+	q1 [shape=circle]
+	q2 [shape=circle]
+	q3 [shape=circle]
+	q4 [shape=circle]
+	q5 [shape=circle]
+	q6 [shape=circle]
+	q7 [shape=doublecircle]
+	q0 -> q1 [label="AWS
+AZURE
+GCP"]
+	q1 -> q1 [label="AWS
+AZURE
+GCP"]
+	q1 -> q2 [label="DOCKER
+KUBERNETES
+HELM"]
+	q2 -> q2 [label="DOCKER
+KUBERNETES
+HELM"]
+	q2 -> q3 [label="TERRAFORM
+ANSIBLE"]
+	q3 -> q3 [label="TERRAFORM
+ANSIBLE"]
+	q3 -> q4 [label="JENKINS
+GITHUB
+GITLAB
+ε"]
+	q4 -> q4 [label="JENKINS
+GITHUB
+GITLAB"]
+	q4 -> q5 [label="LINUX
+PYTHON
+GO"]
+	q5 -> q5 [label="LINUX
+PYTHON
+GO"]
+	q5 -> q6 [label="POSTGRESQL
+MYSQL
+MONGODB
+REDIS
+SQL
+ε"]
+	q6 -> q6 [label="POSTGRESQL
+MYSQL
+MONGODB
+REDIS
+SQL"]
+	q6 -> q7 [label=GIT]
+	q7 -> q7 [label=GIT]
+}

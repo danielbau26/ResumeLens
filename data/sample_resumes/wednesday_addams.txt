@@ -1,0 +1,7 @@
+Wednesday Addams
+wednesday.addams@example.com | +1 212 555 0142 | github.com/waddams
+
+3 years of experience developing web applications.
+
+Technical Skills:
+JS, React.js, NodeJS, Postgres, Git.

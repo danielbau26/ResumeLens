@@ -1,0 +1,29 @@
+{
+  "email": [
+    "mary.jane@example.com"
+  ],
+  "url": [
+    "linkedin.com/in/mjwatson"
+  ],
+  "programming_languages": [
+    "Python"
+  ],
+  "frameworks_libraries": [
+    "Pandas",
+    "NumPy",
+    "Scikit-learn",
+    "TensorFlow"
+  ],
+  "databases": [
+    "SQL"
+  ],
+  "tools_technologies": [
+    "Git"
+  ],
+  "academic_qualifications": [
+    "BSc in Computer Science"
+  ],
+  "professional_experience": [
+    "2 years of experience developing predictive models and data-processing pipelines"
+  ]
+}

@@ -26,13 +26,15 @@ qualifications satisfy formally defined qualification patterns.
 
 ## Supported Professional Profiles
 
-1. **Full Stack Developer** *(predefined)*
-2. **Machine Learning Engineer** *(predefined)*
-3. *(AI Engineer — defined by the team)*
-4. *(Cloud Engineer — defined by the team)*
+1. **Full Stack Developer** *(predefined)* — `full_stack`
+2. **Machine Learning Engineer** *(predefined)* — `machine_learning`
+3. **AI Engineer** *(team-defined)* — `ai_engineer`
+4. **Cloud Engineer** *(team-defined)* — `cloud_engineer`
 
 All four profiles are processed through the same general pipeline rather than independent
-implementations.
+implementations. Each profile's canonical qualification order (used by Stage 2 to sort the normalized
+output) is defined in `src/resumelens/normalization/ordering.py`; the Stage 3 recognition module then
+builds one automaton per profile over the already-sorted canonical sequence.
 
 ## Pipeline / Formal Models
 
@@ -85,10 +87,41 @@ pip install -r requirements.txt
 
 ## Usage
 
-*(To be completed once the CLI/UI entry point in `src/resumelens/ui/` is implemented.)*
+Install the package (editable) so the modules are importable, then run a stage.
 
 ```bash
-python -m resumelens.ui --input data/sample_resumes/<file>.txt --profile full_stack
+pip install -e .
+```
+
+**Stage 1 — Extraction** (implemented):
+
+```bash
+# Print the extracted information (JSON dict) and the skills list passed to Stage 2
+python -m resumelens.extraction data/sample_resumes/wednesday_addams.txt
+```
+
+**Stage 2 — Normalization** (implemented):
+
+```bash
+# Extract a résumé and normalize its qualifications (prints the Stage 1 skills
+# and the normalized result as JSON, sorted per profile under "by_profile").
+python -m resumelens.normalization data/sample_resumes/wednesday_addams.txt
+```
+
+The finite-state transducers map surface variants to a canonical form
+(`Git, NodeJS, JS, Postgres, React.js` → `JAVASCRIPT, REACT, NODE_JS, POSTGRESQL, GIT`), and the
+result's `by_profile` entry holds the sequence ordered for each profile (`full_stack`,
+`machine_learning`, `ai_engineer`, `cloud_engineer`), making it independent of the résumé's wording.
+Transducer diagrams live in `docs/design/diagrams/`.
+
+Full end-to-end pipeline entry point (`python -m resumelens.ui …`) will be wired up as the remaining
+stages are implemented.
+
+## Tests
+
+```bash
+pip install -e ".[dev]"
+pytest
 ```
 
 ## Deliverables

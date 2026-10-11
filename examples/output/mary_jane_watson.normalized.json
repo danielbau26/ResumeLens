@@ -1,0 +1,43 @@
+{
+  "profile": "machine_learning",
+  "canonical": [
+    "PYTHON",
+    "PANDAS",
+    "NUMPY",
+    "SCIKIT_LEARN",
+    "TENSORFLOW",
+    "SQL",
+    "GIT"
+  ],
+  "mapping": [
+    [
+      "Python",
+      "PYTHON"
+    ],
+    [
+      "Pandas",
+      "PANDAS"
+    ],
+    [
+      "NumPy",
+      "NUMPY"
+    ],
+    [
+      "Scikit-learn",
+      "SCIKIT_LEARN"
+    ],
+    [
+      "TensorFlow",
+      "TENSORFLOW"
+    ],
+    [
+      "SQL",
+      "SQL"
+    ],
+    [
+      "Git",
+      "GIT"
+    ]
+  ],
+  "unrecognized": []
+}

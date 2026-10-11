@@ -1,0 +1,58 @@
+
+//La estructura que tiene que tener el resume para poder ser un candidato
+Candidate:
+    'candidate' name=STRING '{'
+        'contact' '{'
+            contacts*=Contact
+        '}'
+
+        'education' '{'
+            education*=Education
+        '}'
+
+        'experience' '{'
+            experiences*=Experience
+        '}'
+
+        'skills' '{'
+            skills*=Skill
+        '}'
+
+        'accepted_profiles' '{'
+            profiles*=Profile
+        '}'
+    '}'
+;
+
+//estructuras de cada parte del candidato
+
+Contact:
+    kind=ContactKind value=STRING
+;
+
+ContactKind:
+    'email' | 'phone' | 'url'
+;
+
+Education:
+    'study' description=STRING
+;
+
+Experience:
+    'job' description=STRING
+;
+
+Skill:
+    'skill' name=/[A-Z][A-Z0-9_]*/
+;
+
+Profile:
+    'profile' name=ProfileName
+;
+
+ProfileName:
+    'full_stack'
+    | 'machine_learning'
+    | 'ai_engineer'
+    | 'cloud_engineer'
+;

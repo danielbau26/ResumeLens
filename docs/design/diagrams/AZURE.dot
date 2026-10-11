@@ -1,0 +1,17 @@
+digraph {
+	rankdir=LR
+	node [fontname=Helvetica]
+	__init__ [label="" height=0 shape=none width=0]
+	__init__ -> q0
+	q0 [fillcolor=lightblue shape=circle style=filled]
+	q1 [shape=circle]
+	q0 -> q1 [label=" a / AZURE "]
+	q2 [shape=circle]
+	q1 -> q2 [label=" z / ε "]
+	q3 [shape=circle]
+	q2 -> q3 [label=" u / ε "]
+	q4 [shape=circle]
+	q3 -> q4 [label=" r / ε "]
+	q5 [shape=doublecircle]
+	q4 -> q5 [label=" e / ε "]
+}
