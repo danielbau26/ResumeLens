@@ -7,7 +7,7 @@ from pathlib import Path
 
 import pytest
 
-from resumelens.extraction import extract_from_file, get_skills
+from resumelens.extraction import extract_from_file, extract_info, get_skills
 from resumelens.normalization import (
     PROFILE_ORDER,
     build_transducer,
@@ -118,7 +118,7 @@ def test_every_stage1_skill_is_recognized():
         "Redis, Oracle, NoSQL, GitHub, GitLab, Git, Docker, K8s, Helm, Jenkins, "
         "Terraform, Ansible, AWS, Azure, GCP, REST APIs, GraphQL, Linux"
     )
-    skills = get_skills(extract_from_file_text(text))
+    skills = get_skills(extract_info(text))
     result = normalize(skills)
     assert result["unrecognized"] == []
     
