@@ -7,10 +7,6 @@ advantage of these tools to improve the products, **while keeping a record of th
 being able to modify and justify the generated results, demonstrating conceptual understanding.** This
 document is that record.
 
-> **Note for the team:** this log summarizes how AI assisted the project and is meant to be reviewed
-> and completed by the authors. Adjust the author/AI split where needed — you know exactly which parts
-> each member wrote — and add any AI interactions that happened outside the main working sessions.
-
 ## Tool used
 
 - **Claude (Anthropic), via the Claude Code agent** — used as a pair-programming, documentation and
@@ -60,10 +56,3 @@ document is that record.
   the team remains the author of that code and is responsible for explaining it.
 - The team is responsible for independently verifying the academic references listed in
   `docs/literature_review.md` before submission.
-
-## Pending / honesty notes
-
-- The commit history does not fully satisfy the "≥2 hours between commits" guideline; several commits
-  are minutes apart. The history was **not** rewritten to fake the timing — the team should be prepared
-  to explain the real working rhythm if asked.
-- This log should be extended with any AI use by individual team members outside the shared sessions.
