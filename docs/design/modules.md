@@ -102,8 +102,13 @@ PROFILE = {
 
 | Function | Input | Output | Description |
 |---|---|---|---|
+| `generate_candidate(data, normalized, results)` | Stage 1, 2 and 3 dictionaries | DSL text (`str`) | Builds the candidate specification with extracted data, canonical skills and accepted profiles. |
+| `validate_candidate(text)` | DSL text (`str`) | Candidate object | Parses the text using `candidate.tx` and textX. Raises an error if the text violates the grammar. |
+
 
 ## Visualization (`src/resumelens/visualization/`)
 
 | Function | Input | Output | Description |
 |---|---|---|---|
+| `generate_markdown(candidate)` | Validated candidate object | Markdown text (`str`) | Builds the candidate summary. |
+| `save_markdown(text, path)` | Markdown text and file path | File; returns `None` | Saves the summary as a UTF-8 Markdown file. |
