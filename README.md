@@ -4,118 +4,125 @@
 
 **Team:** *DiscreteFarmers*
 
-**Members:** *Daniel Bautista, Jeanfer Rivera Samuel Rengifo*
+**Members:** *Daniel Bautista, Jeanfer Rivera, Samuel Rengifo*
 
 **Professor:** *Juan Marcos*
 
-**Deadline:** October 11, 2026
+**Live app:** <https://discretefarmers-resumelens.streamlit.app/> (deploys the `main` branch)
 
 ## Problem Statement
 
 Recruitment processes often require reviewing large numbers of résumés to determine whether
 candidates satisfy the qualifications expected for a particular professional profile. Résumés usually
-contain similar types of information, education, professional experience, technical skills, contact
-information, and projects. But the way this information is written and organized varies considerably
+contain similar types of information — education, professional experience, technical skills, contact
+information, and projects — but the way this information is written and organized varies considerably
 (e.g., `JavaScript`, `Javascript`, and `JS` refer to the same language; `Scikit-learn`, `sklearn`, and
 `scikit learn` refer to the same library).
 
 **ResumeLens** processes textual résumés and determines whether the qualifications identified in a
 candidate's résumé satisfy the patterns defined for a professional profile. The purpose of ResumeLens
-is **not** to rank candidates or make hiring decisions — it only evaluates whether explicitly identified
-qualifications satisfy formally defined qualification patterns.
+is **not** to rank candidates or make hiring decisions — it only evaluates whether explicitly
+identified qualifications satisfy formally defined qualification patterns.
 
 ## Supported Professional Profiles
 
 1. **Full Stack Developer** *(predefined)* — `full_stack`
 2. **Machine Learning Engineer** *(predefined)* — `machine_learning`
-3. **AI Engineer** *(team-defined)* — `ai_engineer`
-4. **Cloud Engineer** *(team-defined)* — `cloud_engineer`
+3. **AI Engineer** *(team-defined, AI/data)* — `ai_engineer`
+4. **Cloud Engineer** *(team-defined, software engineering)* — `cloud_engineer`
 
-All four profiles are processed through the same general pipeline rather than independent
-implementations. Each profile's canonical qualification order (used by Stage 2 to sort the normalized
-output) is defined in `src/resumelens/normalization/ordering.py`; the Stage 3 recognition module then
-builds one automaton per profile over the already-sorted canonical sequence.
+All four profiles are processed through the **same general software solution** rather than independent
+implementations: each profile is a declarative pattern in `src/resumelens/recognition/profiles/`, and
+one generic function builds the four automata from those patterns.
 
 ## Pipeline / Formal Models
 
 | Stage | Goal | Formal model | Implementation |
 |---|---|---|---|
 | 1. Extraction | Extract relevant textual information from résumés | Regular expressions | Python `re` |
-| 2. Normalization | Transform equivalent textual representations into a canonical form, then sort by profile-defined canonical order | Finite-state transducers | `pyformlang` |
-| 3. Recognition | Classify the résumé against a profile's accepted qualification pattern | Finite automata (DFA / NFA / ε-NFA) | `pyformlang` |
-| 4. Candidate Profile Language | Structurally represent and validate the résumé's extracted, normalized, and classified information; generate a visualization | Context-free grammar (DSL) | `textX` |
+| 2. Normalization | Transform equivalent textual representations into a canonical form, then sort by the profile-defined canonical order | Finite-state transducers | `pyformlang` |
+| 3. Recognition | Classify the résumé against each profile's accepted qualification pattern | Finite automata (DFA / ε-NFA) | `pyformlang` |
+| 4. Candidate Profile Language | Structurally represent and validate the résumé's information; generate a visualization | Context-free grammar (DSL) | `textX` |
 
 Each stage's output is the next stage's input:
-`raw résumé text → extracted strings → normalized & sorted qualifications → profile classification → validated candidate profile → HTML/Markdown visualization`.
+
+```
+résumé text
+  → Stage 1  extract_info(text) / get_skills(data)   → ["JS", "React.js", "NodeJS", "Postgres", "Git"]
+  → Stage 2  normalize(skills)                        → {"canonical", "translations", "unrecognized", "by_profile"}
+  → Stage 3  recognize(result["by_profile"])          → {profile: {"profile", "sequence", "result"}}
+  → Stage 4  generate_candidate → validate (textX)    → validated candidate → Markdown summary
+```
 
 ## Project Structure
 
 ```
 ResumeLens/
-├── README.md                      # This file
-├── requirements.txt                # Python dependencies (pyformlang, textX, ...)
-├── docs/                           # All design documents (Markdown)
-│   ├── literature_review.md        # Literature review supporting design decisions
+├── README.md
+├── requirements.txt                 # streamlit, pyformlang, graphviz, textX
+├── pyproject.toml                   # package config + pytest config
+├── docs/
+│   ├── literature_review.md         # theoretical background per stage
 │   ├── design/
-│   │   ├── modules.md              # Module design: functions, inputs/outputs
-│   │   ├── formalization.md        # Formal definitions: regex, FST 7-tuples, FSA 5-tuples, EBNF grammar
-│   │   └── test_cases.md           # Test cases and scenarios per stage
-│   └── poster/                     # Research poster
-├── src/
-│   └── resumelens/
-│       ├── extraction/             # Stage 1: regex-based information extraction
-│       ├── normalization/          # Stage 2: finite-state transducers (pyformlang)
-│       ├── recognition/            # Stage 3: finite automata per profile (pyformlang)
-│       │   └── profiles/           # One automaton definition per professional profile
-│       ├── grammar/                # Stage 4: textX grammar (.tx) + DSL validation
-│       ├── visualization/          # HTML/Markdown candidate-profile renderer
-│       ├── ui/                     # Command-line / UI entry point
-│       └── pipeline.py             # Orchestrates stages 1-4 end to end
-├── tests/                          # Unit and end-to-end tests, including test scenarios
-│   └── fixtures/sample_resumes/    # Sample résumé inputs used by tests
-├── data/sample_resumes/            # Sample résumé text files for manual runs/demos
-└── examples/output/                # Example generated HTML/Markdown outputs
+│   │   ├── modules.md               # module design: functions, inputs/outputs
+│   │   ├── formalization.md         # regex, FST 7-tuples, FSA 5-tuples, EBNF grammar
+│   │   ├── test_cases.md            # test cases and scenarios per stage
+│   │   └── diagrams/                # Graphviz .dot diagrams (transducers + automata)
+│   └── poster/                      # research poster
+├── src/resumelens/
+│   ├── extraction/                  # Stage 1: regex extraction (patterns.py, extractor.py)
+│   ├── normalization/               # Stage 2: FSTs (transformations.py, transducers.py, ordering.py, normalizer.py)
+│   ├── recognition/                 # Stage 3: finite automata (automata.py, recognizer.py)
+│   │   └── profiles/                # one pattern per profile
+│   ├── grammar/                     # Stage 4: candidate.tx (textX), generator.py, validator.py
+│   ├── visualization/               # Markdown candidate renderer
+│   ├── ui/interface.py              # Streamlit user interface
+│   └── app.py                       # Streamlit entry point
+├── tests/                           # pytest suites: extraction, normalization, recognition, grammar
+├── data/sample_resumes/             # wednesday_addams.txt, mary_jane_watson.txt
+└── examples/output/                 # example extraction / normalization JSON
 ```
 
 ## Setup
 
 ```bash
 python -m venv .venv
-source .venv/bin/activate
-pip install -r requirements.txt
+source .venv/bin/activate            # Windows: .venv\Scripts\activate
+pip install -e .                     # installs the package + its dependencies
 ```
 
-## Usage
+## Running the application (Streamlit UI)
 
-Install the package (editable) so the modules are importable, then run a stage.
+The normal way to use ResumeLens is the web interface, which runs all four stages on a pasted or
+uploaded résumé and shows the ACCEPTED/REJECTED result per profile plus a downloadable summary.
 
 ```bash
-pip install -e .
+streamlit run src/resumelens/app.py
 ```
 
-**Stage 1 — Extraction** (implemented):
+It is also deployed publicly at <https://discretefarmers-resumelens.streamlit.app/>.
+
+## Running each stage from the terminal (optional)
+
+Each stage can also be run on its own for inspection (run from the project root):
 
 ```bash
-# Print the extracted information (JSON dict) and the skills list passed to Stage 2
+# Stage 1 — extracted information (JSON) + the skills passed to Stage 2
 python -m resumelens.extraction data/sample_resumes/wednesday_addams.txt
-```
 
-**Stage 2 — Normalization** (implemented):
-
-```bash
-# Extract a résumé and normalize its qualifications (prints the Stage 1 skills
-# and the normalized result as JSON, sorted per profile under "by_profile").
+# Stage 2 — normalization: canonical forms, translations and the per-profile sorted order
 python -m resumelens.normalization data/sample_resumes/wednesday_addams.txt
+
+# Stage 3 — recognition: ACCEPTED/REJECTED for each of the four profiles
+python -m resumelens.recognition data/sample_resumes/wednesday_addams.txt
+
+# Stage 4 — full pipeline: generates and validates the candidate DSL, writes candidate.md
+python -m resumelens.grammar data/sample_resumes/wednesday_addams.txt
 ```
 
-The finite-state transducers map surface variants to a canonical form
-(`Git, NodeJS, JS, Postgres, React.js` → `JAVASCRIPT, REACT, NODE_JS, POSTGRESQL, GIT`), and the
-result's `by_profile` entry holds the sequence ordered for each profile (`full_stack`,
-`machine_learning`, `ai_engineer`, `cloud_engineer`), making it independent of the résumé's wording.
-Transducer diagrams live in `docs/design/diagrams/`.
-
-Full end-to-end pipeline entry point (`python -m resumelens.ui …`) will be wired up as the remaining
-stages are implemented.
+Worked example (the assignment's own Full Stack case): the Wednesday Addams résumé produces
+`JS, React.js, NodeJS, Postgres, Git` (Stage 1) → `JAVASCRIPT, REACT, NODE_JS, POSTGRESQL, GIT`
+(Stage 2) → `full_stack` ACCEPTED (Stage 3) → validated candidate profile + Markdown (Stage 4).
 
 ## Tests
 
@@ -124,18 +131,28 @@ pip install -e ".[dev]"
 pytest
 ```
 
+All suites pass (`tests/test_extraction.py`, `test_normalization.py`, `test_recognition.py`,
+`test_grammar.py`). The scenarios behind them are documented in
+[`docs/design/test_cases.md`](docs/design/test_cases.md).
+
+## Design documentation
+
+- [`docs/design/modules.md`](docs/design/modules.md) — module design (functions, inputs/outputs).
+- [`docs/design/formalization.md`](docs/design/formalization.md) — regular expressions, FST 7-tuples,
+  FSA 5-tuples and the EBNF grammar.
+- [`docs/design/test_cases.md`](docs/design/test_cases.md) — test cases and scenarios per stage.
+- [`docs/literature_review.md`](docs/literature_review.md) — theoretical background guiding the design.
+- `docs/design/diagrams/` — Graphviz `.dot` diagrams for every transducer and automaton.
+
 ## Deliverables
 
 1. Research poster (`docs/poster/`) — in English.
-2. Design documents (`docs/design/`):
-   - Module design (functions, inputs/outputs)
-   - Formalization (regex, FST/FSA 7-/5-tuples, EBNF grammar)
-   - Test cases and scenarios
-3. Python implementation (`src/`): complete and correct model, UI, and tests.
+2. Design documents (`docs/design/`): module design, formalization, test cases.
+3. Python implementation (`src/`): the four formal models, the Streamlit UI, and the tests.
 4. 10-minute technical presentation (in English), based on the poster.
 
 ## AI Collaboration Disclosure (Nivel 3)
 
-This project used AI assistance for completing tasks
-and entregables. A record of AI interactions — including author-provided content and prompts used —
-is kept in *(location, e.g. `docs/ai_log.md`)*.
+This project used AI assistance (Nivel de uso de IAG 3 — *Colaboración con IAG*). A record of how AI
+was used across the project, including the kinds of prompts and the author-provided content, is kept
+in [`docs/ai_log.md`](docs/ai_log.md).

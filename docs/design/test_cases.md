@@ -1,10 +1,10 @@
 # Test Cases
 
 Test cases and scenarios used to validate each stage of the pipeline. All of them are automated with
-`pytest` in `tests/`. Run from the project root:
+`pytest` in `tests/`. From the project root (after `pip install -e ".[dev]"`):
 
 ```bash
-PYTHONPATH=src python -m pytest -v
+pytest -v
 ```
 
 ## Stage 1 — Extraction (`tests/test_extraction.py`)
