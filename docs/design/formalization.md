@@ -284,8 +284,3 @@ q6 --[Version control]--> q7   {GIT}
 
 ## 4. Context-Free Grammar / DSL (Stage 4 — Candidate Profile Language)
 
-Define the grammar in EBNF, identifying terminals and non-terminals, and explain the structural characteristics of the language.
-
-```
-(* EBNF grammar goes here *)
-```

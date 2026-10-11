@@ -78,6 +78,19 @@ PYTHONPATH=src python -m pytest -v
 
 | # | Scenario | Input | Expected output |
 |---|---|---|---|
+| 1 | Valid candidate | Complete DSL specification | Candidate object returned |
+| 2 | Empty lists | All blocks present with no entries | Accepted |
+| 3 | Repeated entries | Multiple contacts, studies, experiences and skills | All entries preserved |
+| 4 | Missing closing brace | DSL without the final `}` | `TextXSyntaxError` |
+| 5 | Missing required block | DSL without `education` | `TextXSyntaxError` |
+| 6 | Wrong block order | `skills` before `experience` | `TextXSyntaxError` |
+| 7 | Lowercase skill | `skill python` | `TextXSyntaxError` |
+| 8 | Unknown profile | `profile doctor` | `TextXSyntaxError` |
+| 9 | Invalid contact kind | `fax "123456"` | `TextXSyntaxError` |
+| 10 | Text without quotes | `candidate Daniel` | `TextXSyntaxError` |
+| 11 | Accepted profiles only | Mixed Stage 3 results | Only accepted profiles included in DSL |
+| 12 | Markdown output | Validated candidate | Summary contains candidate data and accepted profiles |
+| 13 | Markdown file saving | Summary and temporary path | Saved content matches generated text |
 
 ## End-to-End Scenarios
 
