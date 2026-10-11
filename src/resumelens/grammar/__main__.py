@@ -8,8 +8,6 @@ from ..visualization import generate_markdown, save_markdown
 from .generator import generate_candidate
 from .validator import validate_candidate
 
-import subprocess
-
 
 def main():
     # Comprueba que se haya recibido la ruta del archivo.
@@ -38,8 +36,7 @@ def main():
     markdown = generate_markdown(candidate)
     save_markdown(markdown, "candidate.md")
 
-    # Abre la ficha generada en VS Code.
-    subprocess.run(["code.cmd", "candidate.md"], check=True)
+    print("Candidate profile saved to candidate.md")
 
 
 if __name__ == "__main__":
