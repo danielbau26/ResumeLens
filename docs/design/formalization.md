@@ -284,8 +284,163 @@ q6 --[Version control]--> q7   {GIT}
 
 ## 4. Context-Free Grammar / DSL (Stage 4 — Candidate Profile Language)
 
-Define the grammar in EBNF, identifying terminals and non-terminals, and explain the structural characteristics of the language.
+### Objective
 
+This stage defines a domain-specific language (DSL) to represent the candidate information produced by the previous stages.
+
+The generator receives:
+
+- Candidate name, contact information, education and experience from Stage 1.
+- Canonical skills from Stage 2.
+- Accepted profiles from Stage 3.
+
+The generated text is validated using textX and then used to create a Markdown summary.
+
+### EBNF Grammar
+
+In this notation, quoted text represents literal terminals, commas indicate sequence, `|` indicates alternatives, and `{ ... }` means zero or more repetitions. Quoted braces (`"{"` and `"}"`) are literal symbols of the DSL.
+
+```ebnf
+Candidate = "candidate", STRING, "{",
+                ContactBlock,
+                EducationBlock,
+                ExperienceBlock,
+                SkillsBlock,
+                ProfilesBlock,
+            "}" ;
+
+ContactBlock = "contact", "{", { Contact }, "}" ;
+
+EducationBlock = "education", "{", { Education }, "}" ;
+
+ExperienceBlock = "experience", "{", { Experience }, "}" ;
+
+SkillsBlock = "skills", "{", { Skill }, "}" ;
+
+ProfilesBlock = "accepted_profiles", "{", { Profile }, "}" ;
+
+Contact = ContactKind, STRING ;
+
+ContactKind = "email" | "phone" | "url" ;
+
+Education = "study", STRING ;
+
+Experience = "job", STRING ;
+
+Skill = "skill", SKILL_NAME ;
+
+Profile = "profile", ProfileName ;
+
+ProfileName = "full_stack"
+            | "machine_learning"
+            | "ai_engineer"
+            | "cloud_engineer" ;
 ```
-(* EBNF grammar goes here *)
+
+### Terminals and Non-Terminals
+
+**Literal terminals:**
+
+- Keywords: `candidate`, `contact`, `education`, `experience`, `skills`, `accepted_profiles`, `study`, `job`, `skill` and `profile`.
+- Contact types: `email`, `phone` and `url`.
+- Profile names: `full_stack`, `machine_learning`, `ai_engineer` and `cloud_engineer`.
+- Structural symbols: `{` and `}`.
+
+**Lexical terminals:**
+
+| Terminal | Definition |
+|---|---|
+| `STRING` | textX's built-in quoted-string rule. The generator uses double-quoted strings and escapes internal quotes and backslashes. |
+| `SKILL_NAME` | A token matching `[A-Z][A-Z0-9_]*`: starts with an uppercase letter, followed by zero or more uppercase letters, digits or underscores. |
+
+**Non-terminals:**
+
+`Candidate`, `ContactBlock`, `EducationBlock`, `ExperienceBlock`, `SkillsBlock`, `ProfilesBlock`, `Contact`, `ContactKind`, `Education`, `Experience`, `Skill`, `Profile` and `ProfileName`.
+
+The start symbol is `Candidate`.
+
+### Structural Characteristics
+
+- A specification represents one candidate.
+- The candidate name must be a quoted string.
+- All five blocks are required and must appear in this order: contact, education, experience, skills and accepted profiles.
+- Each block supports zero or more entries. A block can be empty when no information is available.
+- Contact information supports multiple emails, phones and URLs.
+- Education and experience entries contain quoted descriptions.
+- Skills use canonical names such as `PYTHON`, `NODE_JS` and `SCIKIT_LEARN`.
+- Only the four declared profile names are allowed.
+- Multiple accepted profiles can be included. The block is empty if no profile was accepted.
+- Whitespace and indentation outside strings are ignored by the parser. Braces define the blocks.
+
+### Implementation with textX
+
+The grammar is implemented in `src/resumelens/grammar/candidate.tx`.
+
+The EBNF block rules are written directly inside the `Candidate` rule in the textX implementation. Repeated assignments such as `contacts*=Contact` create lists containing zero or more entries.
+
+The implementation uses three steps:
+
+1. `generate_candidate(data, normalized, results)` builds the DSL text.
+2. `metamodel_from_file()` loads the grammar.
+3. `model_from_str()` parses the generated text and returns a candidate object.
+
+The object contains `name`, `contacts`, `education`, `experiences`, `skills` and `profiles`.
+
+The generator maps the previous results as follows:
+
+| Source | DSL representation |
+|---|---|
+| `data["name"]` | Candidate name |
+| `data["emails"]`, `data["phones"]`, `data["urls"]` | Contact entries |
+| `data["academic_qualifications"]` | Education entries |
+| `data["professional_experience"]` | Experience entries |
+| `normalized["canonical"]` | Skill entries |
+| Stage 3 results with `result == "ACCEPTED"` | Accepted profile entries |
+
+### Validation and Rejection
+
+textX rejects specifications that violate the grammar, raising `TextXSyntaxError`.
+
+Examples include:
+
+- Missing braces.
+- Missing required blocks.
+- Blocks in the wrong order.
+- Names or descriptions without quotes.
+- Lowercase skill names.
+- Unknown profile names.
+- Invalid contact types.
+
+This validation checks the structure and lexical rules of the DSL. It does not verify whether a contact value is a real email or phone number, whether a skill belongs to the normalization catalogue, or whether the candidate actually meets a profile. Profile recognition is performed in Stage 3.
+
+### Valid Example
+
+```text
+candidate "Wednesday Addams" {
+    contact {
+        email "wednesday@example.com"
+    }
+    education {
+        study "Bachelor in Computer Science"
+    }
+    experience {
+        job "3 years of experience developing web applications"
+    }
+    skills {
+        skill JAVASCRIPT
+        skill REACT
+        skill NODE_JS
+        skill POSTGRESQL
+        skill GIT
+    }
+    accepted_profiles {
+        profile full_stack
+    }
+}
 ```
+
+### Visualization Output
+
+After validation, `generate_markdown(candidate)` uses the candidate object to create a Markdown summary with contact information, education, experience, skills and accepted profiles.
+
+The summary is displayed in the Streamlit interface and can be downloaded as `candidate.md`. The terminal workflow can also save it using `save_markdown(text, path)`.

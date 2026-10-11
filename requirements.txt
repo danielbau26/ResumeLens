@@ -1,3 +1,4 @@
+streamlit
 pyformlang
-textX
 graphviz
+textX
