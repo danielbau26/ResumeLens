@@ -12,6 +12,8 @@ document is that record.
 - **Claude (Anthropic), via the Claude Code agent** — used as a pair-programming, documentation and
   code-review assistant throughout the project.
 
+- **ChatGPT (OpenAI)** — used for explanations of formal language concepts, reviewed for Stage 4, tests, Streamlit setup, deployment guidance, documentation review.
+
 ## How AI was used (by category)
 
 | Area | AI assistance | Author (team) responsibility |

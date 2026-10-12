@@ -4,11 +4,17 @@
 
 **Team:** *DiscreteFarmers*
 
-**Members:** *Daniel Bautista, Jeanfer Rivera, Samuel Rengifo*
+**Members:**
+
+| Name | GitHub |
+| :--- | :--- |
+| Samuel Rengifo | [@sjrengifo](https://github.com/sjrengifo) |
+| Jeanfer Rivera | [@Jeanfer224](https://github.com/Jeanfer224) |
+| Daniel Bautista | [@danielbau26](https://github.com/danielbau26) |
 
 **Professor:** *Juan Marcos*
 
-**Live app:** <https://discretefarmers-resumelens.streamlit.app/> (deploys the `main` branch)
+**Live app:** <https://discretefarmers-resumelens.streamlit.app/>
 
 ## Problem Statement
 
@@ -46,13 +52,19 @@ one generic function builds the four automata from those patterns.
 
 Each stage's output is the next stage's input:
 
-```
-résumé text
-  → Stage 1  extract_info(text) / get_skills(data)   → ["JS", "React.js", "NodeJS", "Postgres", "Git"]
-  → Stage 2  normalize(skills)                        → {"canonical", "translations", "unrecognized", "by_profile"}
-  → Stage 3  recognize(result["by_profile"])          → {profile: {"profile", "sequence", "result"}}
-  → Stage 4  generate_candidate → validate (textX)    → validated candidate → Markdown summary
-```
+Stages 1–3 extract, normalize, and classify the résumé information.
+Stage 4 combines the extracted information, normalized skills, and
+classification results to generate and validate the candidate profile.
+
+1. `extract_info(text)` extracts candidate information.
+   `get_skills(data)` collects the technical skills.
+2. `normalize(skills)` produces canonical skills and ordered sequences
+   for each profile.
+3. `recognize(normalized["by_profile"])` returns ACCEPTED or REJECTED
+   for each profile.
+4. `generate_candidate(data, normalized, results)` creates the candidate DSL.
+   `validate_candidate(candidate_text)` validates it using textX.
+   `generate_markdown(candidate)` creates the summary from the validated model.
 
 ## Project Structure
 
@@ -87,8 +99,22 @@ ResumeLens/
 
 ```bash
 python -m venv .venv
-source .venv/bin/activate            # Windows: .venv\Scripts\activate
-pip install -e .                     # installs the package + its dependencies
+```
+
+Activate the virtual environment:
+
+```bash
+# Linux / macOS
+source .venv/bin/activate
+
+# Windows PowerShell
+.venv\Scripts\Activate.ps1
+```
+
+Install the package and its dependencies from the project root:
+
+```bash
+python -m pip install -e .
 ```
 
 ## Running the application (Streamlit UI)
@@ -97,14 +123,15 @@ The normal way to use ResumeLens is the web interface, which runs all four stage
 uploaded résumé and shows the ACCEPTED/REJECTED result per profile plus a downloadable summary.
 
 ```bash
-streamlit run src/resumelens/app.py
+python -m streamlit run src/resumelens/app.py
 ```
 
 It is also deployed publicly at <https://discretefarmers-resumelens.streamlit.app/>.
 
 ## Running each stage from the terminal (optional)
 
-Each stage can also be run on its own for inspection (run from the project root):
+The following commands run the pipeline up to each stage for inspection.
+Run them from the project root after installing the package.
 
 ```bash
 # Stage 1 — extracted information (JSON) + the skills passed to Stage 2
@@ -126,14 +153,17 @@ Worked example (the assignment's own Full Stack case): the Wednesday Addams rés
 
 ## Tests
 
+Install the development dependencies and run the tests:
+
 ```bash
-pip install -e ".[dev]"
-pytest
+python -m pip install -e ".[dev]"
+python -m pytest
 ```
 
-All suites pass (`tests/test_extraction.py`, `test_normalization.py`, `test_recognition.py`,
-`test_grammar.py`). The scenarios behind them are documented in
-[`docs/design/test_cases.md`](docs/design/test_cases.md).
+The test suites cover extraction, normalization, recognition, and candidate
+grammar validation. The test scenarios are documented in
+[docs/design/test_cases.md](docs/design/test_cases.md).
+
 
 ## Design documentation
 
@@ -148,7 +178,7 @@ All suites pass (`tests/test_extraction.py`, `test_normalization.py`, `test_reco
 
 1. Research poster (`docs/poster/`) — in English.
 2. Design documents (`docs/design/`): module design, formalization, test cases.
-3. Python implementation (`src/`): the four formal models, the Streamlit UI, and the tests.
+3. Python implementation (`src/`): the four stages and the Streamlit UI; automated tests (`tests/`).
 4. 10-minute technical presentation (in English), based on the poster.
 
 ## AI Collaboration Disclosure (Nivel 3)
